@@ -1,10 +1,10 @@
-import { ponder } from "@/generated";
+import { ponder } from "ponder:registry";
 import {
     bankingContractTable,
     rewardAddedEventTable,
     rewardClaimedEventTable,
     rewardTable,
-} from "../../ponder.schema";
+} from "ponder:schema";
 import { safeIncreaseCampaignsStats } from "../interactions/stats";
 
 ponder.on("CampaignBanks:RewardAdded", async ({ event, context }) => {
@@ -49,7 +49,7 @@ ponder.on("CampaignBanks:RewardAdded", async ({ event, context }) => {
         user: event.args.user,
         emitter: event.args.emitter,
         amount: event.args.amount,
-        txHash: event.log.transactionHash,
+        txHash: event.transaction.hash,
         timestamp: event.block.timestamp,
     });
 
@@ -104,7 +104,7 @@ ponder.on("CampaignBanks:RewardClaimed", async ({ event, context: { db } }) => {
         contractId: bankingContract.id,
         user: event.args.user,
         amount: event.args.amount,
-        txHash: event.log.transactionHash,
+        txHash: event.transaction.hash,
         timestamp: event.block.timestamp,
     });
 });

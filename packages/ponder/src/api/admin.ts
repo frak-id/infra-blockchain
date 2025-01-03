@@ -1,6 +1,4 @@
-import { ponder } from "@/generated";
-import { countDistinct, eq, inArray } from "@ponder/core";
-import { type Address, isAddress } from "viem";
+import { ponder } from "ponder:registry";
 import {
     campaignTable,
     interactionEventTable,
@@ -8,7 +6,9 @@ import {
     productInteractionContractTable,
     productTable,
     referralCampaignStatsTable,
-} from "../../ponder.schema";
+} from "ponder:schema";
+import { countDistinct, eq, inArray } from "ponder";
+import { type Address, isAddress } from "viem";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error

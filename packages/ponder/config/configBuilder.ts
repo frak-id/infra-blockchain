@@ -1,4 +1,5 @@
-import { createConfig, mergeAbis } from "@ponder/core";
+import { createConfig, mergeAbis } from "ponder";
+import { factory } from "ponder";
 import {
     http,
     type Address,
@@ -217,14 +218,14 @@ export function createEnvConfig<NetworkKey extends string>({
                     referralFeatureFacetAbi,
                     purchaseFeatureFacetAbi,
                 ]),
-                factory: {
+                address: factory({
                     address:
                         deployedAddresses.productInteractionManager as Address,
                     event: parseAbiItem(
                         "event InteractionContractDeployed(uint256 indexed productId, address interactionContract)"
                     ),
                     parameter: "interactionContract",
-                },
+                }),
                 network: contractNetworkConfig,
             },
             // The campaign factory
@@ -236,13 +237,13 @@ export function createEnvConfig<NetworkKey extends string>({
             // Every campaigns
             Campaigns: {
                 abi: mergeAbis([interactionCampaignAbi, referralCampaignAbi]),
-                factory: {
+                address: factory({
                     address: deployedAddresses.campaignFactory as Address,
                     event: parseAbiItem(
                         "event CampaignCreated(address campaign)"
                     ),
                     parameter: "campaign",
-                },
+                }),
                 network: contractNetworkConfig,
             },
             // The campaign banks factory
@@ -254,13 +255,13 @@ export function createEnvConfig<NetworkKey extends string>({
             // Every campaign banks
             CampaignBanks: {
                 abi: campaignBankAbi,
-                factory: {
+                address: factory({
                     address: deployedAddresses.campaignBankFactory as Address,
                     event: parseAbiItem(
                         "event CampaignBankCreated(address campaignBank)"
                     ),
                     parameter: "campaignBank",
-                },
+                }),
                 network: contractNetworkConfig,
             },
         },
