@@ -69,8 +69,11 @@ export const erpcService = new SstService("Erpc", {
     },
     // Container health check
     health: {
-        command: ["CMD-SHELL", "curl -f http://localhost:8080/healthcheck || exit 1"],
-        startPeriod: "15 seconds"
+        command: [
+            "CMD-SHELL",
+            "curl -f http://localhost:8080/healthcheck || exit 1",
+        ],
+        startPeriod: "15 seconds",
     },
     // Logging options
     logging: {

@@ -1,9 +1,12 @@
 import {
     type CacheConfig,
     CacheEmptyBehaviorAllow,
+    CacheEmptyBehaviorIgnore,
     type CachePolicyConfig,
     type ConnectorConfig,
     DataFinalityStateFinalized,
+    DataFinalityStateRealtime,
+    DataFinalityStateUnfinalized,
 } from "@erpc-cloud/config";
 
 if (!process.env.ERPC_DATABASE_URL) {
@@ -22,22 +25,22 @@ const connectors = [
             table: "rpc_cache",
         },
     },
-    // {
-    //     id: "memory-unfinalized",
-    //     driver: "memory",
-    //     memory: {
-    //         // max 4k items for unfinalized cache
-    //         maxItems: 4_096,
-    //     },
-    // },
-    // {
-    //     id: "memory-realtime",
-    //     driver: "memory",
-    //     memory: {
-    //         // Max 4k items for realtime cache
-    //         maxItems: 4_096,
-    //     },
-    // },
+    {
+        id: "memory-unfinalized",
+        driver: "memory",
+        memory: {
+            // max 4k items for unfinalized cache
+            maxItems: 4_096,
+        },
+    },
+    {
+        id: "memory-realtime",
+        driver: "memory",
+        memory: {
+            // Max 4k items for realtime cache
+            maxItems: 4_096,
+        },
+    },
 ] as const satisfies ConnectorConfig[];
 
 /**
@@ -54,37 +57,37 @@ const cachePolicies = [
         finality: DataFinalityStateFinalized,
         empty: CacheEmptyBehaviorAllow,
     },
-    // // Cache not finalized data for 2sec in the memory
-    // {
-    //     connector: "memory-unfinalized",
-    //     network: "*",
-    //     method: "*",
-    //     finality: DataFinalityStateUnfinalized,
-    //     empty: CacheEmptyBehaviorIgnore,
-    //     // 2sec in nanoseconds
-    //     ttl: 2_000_000_000,
-    //     maxItemSize: "20kb",
-    // },
-    // // Cache realtime data for 2sec on the memory on arbitrum
-    // {
-    //     connector: "memory-realtime",
-    //     network: "evm:42161",
-    //     method: "*",
-    //     finality: DataFinalityStateRealtime,
-    //     empty: CacheEmptyBehaviorIgnore,
-    //     // 2sec in nanoseconds
-    //     ttl: 2_000_000_000,
-    // },
-    // // Cache realtime data for 30sec on arbitrum sepolia
-    // {
-    //     connector: "memory-realtime",
-    //     network: "evm:421614",
-    //     method: "*",
-    //     finality: DataFinalityStateRealtime,
-    //     empty: CacheEmptyBehaviorIgnore,
-    //     // 30sec in nanoseconds
-    //     ttl: 30_000_000_000,
-    // },
+    // Cache not finalized data for 2sec in the memory
+    {
+        connector: "memory-unfinalized",
+        network: "*",
+        method: "*",
+        finality: DataFinalityStateUnfinalized,
+        empty: CacheEmptyBehaviorIgnore,
+        // 2sec in nanoseconds
+        ttl: 2_000_000_000,
+        maxItemSize: "20kb",
+    },
+    // Cache realtime data for 2sec on the memory on arbitrum
+    {
+        connector: "memory-realtime",
+        network: "evm:42161",
+        method: "*",
+        finality: DataFinalityStateRealtime,
+        empty: CacheEmptyBehaviorIgnore,
+        // 2sec in nanoseconds
+        ttl: 2_000_000_000,
+    },
+    // Cache realtime data for 30sec on arbitrum sepolia
+    {
+        connector: "memory-realtime",
+        network: "evm:421614",
+        method: "*",
+        finality: DataFinalityStateRealtime,
+        empty: CacheEmptyBehaviorIgnore,
+        // 30sec in nanoseconds
+        ttl: 30_000_000_000,
+    },
 ] as const satisfies CachePolicyConfig[];
 
 /**
