@@ -42,13 +42,11 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
 /**
  * Get the ponder env and ssm variable
  */
-const erpcProject =
-    $app.stage === "production" ? "ponder-rpc" : "ponder-dev-rpc";
 const cloudmapErpcUrl = vpc.nodes.cloudmapNamespace.name.apply(
     (namespaceName) =>
-        `http://Erpc.production.frak-indexer.${namespaceName}:8080/${erpcProject}/evm`
+        `http://Erpc.production.frak-indexer.${namespaceName}:8080/ponder-rpc/evm`
 );
-const externalErpcUrl = `https://rpc.frak-labs.com/${erpcProject}/evm`;
+const externalErpcUrl = `https://rpc.frak-labs.com/ponder-rpc/evm`;
 
 /**
  * Export the ponder  environment
