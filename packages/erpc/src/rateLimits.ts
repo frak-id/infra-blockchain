@@ -16,12 +16,18 @@ function genericRateLimitsRules(count: number): RateLimitRuleConfig {
 type RuleExport = [RateLimitRuleConfig, ...RateLimitRuleConfig[]];
 
 export const envioRateRules: RuleExport = [
-    genericRateLimitsRules(400),
+    genericRateLimitsRules(600),
     {
         method: "eth_getLogs",
-        maxCount: 150,
+        maxCount: 300,
         period: "1s",
-        waitTime: "10s",
+        waitTime: "5s",
+    },
+    {
+        method: "eth_getBlockByNumber",
+        maxCount: 300,
+        period: "1s",
+        waitTime: "5s",
     },
 ];
 
@@ -29,13 +35,13 @@ export const alchemyRateRules: RuleExport = [
     genericRateLimitsRules(200),
     {
         method: "eth_getLogs",
-        maxCount: 20,
+        maxCount: 30,
         period: "1s",
         waitTime: "10s",
     },
     {
         method: "eth_getBlockByNumber",
-        maxCount: 40,
+        maxCount: 60,
         period: "1s",
         waitTime: "10s",
     },

@@ -84,6 +84,7 @@ export default initErpcConfig({
         id: "ponder-dev-rpc",
         networks: [networks.arbitrumSepolia],
         upstreams: [
+            upstreams.alchemy,
             upstreams.envio,
             upstreams.drpc,
             upstreams.tenderlyFreeArbSepolia,
