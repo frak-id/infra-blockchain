@@ -1,5 +1,5 @@
-import { ponder } from "@/generated";
-import { interactionEventTable } from "../../ponder.schema";
+import { ponder } from "ponder:registry";
+import { interactionEventTable } from "ponder:schema";
 import { safeIncreaseCampaignsStats } from "./stats";
 
 ponder.on("ProductInteraction:WebShopOpenned", async ({ event, context }) => {

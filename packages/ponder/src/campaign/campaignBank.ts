@@ -1,8 +1,8 @@
 import * as console from "node:console";
-import { type Context, ponder } from "@/generated";
+import { type Context, ponder } from "ponder:registry";
+import { bankingContractTable, campaignTable } from "ponder:schema";
 import { type Address, isAddressEqual } from "viem";
 import { campaignBankAbi } from "../../abis/campaignAbis";
-import { bankingContractTable, campaignTable } from "../../ponder.schema";
 import { upsertTokenIfNeeded } from "../token";
 
 ponder.on(

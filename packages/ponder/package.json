@@ -13,22 +13,22 @@
     "serve:prod": "ponder --config config/config-prod.ts serve",
     "serve:dev": "ponder --config config/config-dev.ts serve",
     "start": "ponder --config config/config-local.ts start",
-    "start:dev": "ponder --config config/config-dev.ts start",
-    "start:prod": "ponder --config config/config-prod.ts start",
+    "start:dev": "ponder --config config/config-dev.ts start --schema dev",
+    "start:prod": "ponder --config config/config-prod.ts start --schema prod",
     "typecheck": "tsc",
     "docker": "bun docker:build && bun docker:run",
     "docker:build": "docker build --tag ponder-dev .",
     "docker:run": "docker run -P ponder-dev"
   },
   "dependencies": {
-    "@ponder/core": "0.7.17",
     "drizzle-orm": "0.36.4",
-    "hono": "4.6.13",
-    "viem": "^2.21.54"
+    "hono": "4.6.16",
+    "ponder": "^0.8.17",
+    "viem": "^2.22.3"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.5",
     "typescript": "^5.7.2"
   },
   "engines": {

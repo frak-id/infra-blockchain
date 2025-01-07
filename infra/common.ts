@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws";
-import { Output } from "@pulumi/pulumi";
+import { Output, all } from "@pulumi/pulumi";
 
 // Get the VPC
 const { id: vpcId } = await aws.ec2.getVpc({
@@ -25,3 +25,16 @@ export const database =
                   subnets: v.privateSubnets,
               })),
           });
+
+/**
+ * Build the database url
+ */
+export const dbUrl = all([
+    database.host,
+    database.port,
+    database.username,
+    database.password,
+    database.database,
+]).apply(([host, port, username, password, database]) => {
+    return `postgres://${username}:${password}@${host}:${port}/${database}`;
+});

@@ -1,7 +1,7 @@
 import console from "node:console";
-import type { Context } from "@/generated";
+import type { Context } from "ponder:registry";
+import { tokenTable } from "ponder:schema";
 import { type Address, erc20Abi } from "viem";
-import { tokenTable } from "../ponder.schema";
 
 export async function upsertTokenIfNeeded({
     address,

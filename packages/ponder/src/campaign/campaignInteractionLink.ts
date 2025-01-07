@@ -1,8 +1,5 @@
-import { ponder } from "@/generated";
-import {
-    campaignTable,
-    productInteractionContractTable,
-} from "../../ponder.schema";
+import { ponder } from "ponder:registry";
+import { campaignTable, productInteractionContractTable } from "ponder:schema";
 import { upsertNewCampaign } from "./campaignCreation";
 
 ponder.on("ProductInteraction:CampaignAttached", async ({ event, context }) => {

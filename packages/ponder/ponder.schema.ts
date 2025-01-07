@@ -1,4 +1,4 @@
-import { index, onchainEnum, onchainTable, primaryKey } from "@ponder/core";
+import { index, onchainEnum, onchainTable, primaryKey } from "ponder";
 
 /* -------------------------------------------------------------------------- */
 /*                            Product related stuff                           */

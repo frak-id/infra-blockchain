@@ -1,6 +1,6 @@
-import { type Context, ponder } from "@/generated";
+import { type Context, ponder } from "ponder:registry";
+import { productAdministratorTable } from "ponder:schema";
 import { isAddressEqual, zeroAddress } from "viem";
-import { productAdministratorTable } from "../ponder.schema";
 
 /*
  * Handle transfer stuff
