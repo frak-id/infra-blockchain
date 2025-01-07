@@ -61,12 +61,13 @@ export default initErpcConfig({
     // Add our ponder prod project
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "ponder-rpc",
-        networks: [networks.arbitrum],
+        networks: [networks.arbitrum, networks.arbitrumSepolia],
         upstreams: [
             upstreams.alchemy,
             upstreams.envio,
             upstreams.drpc,
             upstreams.llamaFree,
+            upstreams.tenderlyFreeArbSepolia,
         ],
         auth: {
             strategies: [
