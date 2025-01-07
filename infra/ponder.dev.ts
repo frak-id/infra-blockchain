@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
-import { cluster, vpc } from "./common.ts";
+import { cluster, database, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
 import { SstService, getPonderEntrypoint, ponderEnv } from "./utils.ts";
 
@@ -50,6 +50,8 @@ export const ponderIndexer = new SstService("PonderDevIndexer", {
     // Image to be used
     image: image.imageUri,
     entrypoint: getPonderEntrypoint("indexer"),
+    // Link it to the database
+    link: [database],
     // Env
     ...ponderEnv,
     // Logging options
