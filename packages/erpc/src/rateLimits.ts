@@ -55,3 +55,19 @@ export const drpcRateRules: RuleExport = [genericRateLimitsRules(100)];
 
 export const llamaFreeRateRules: RuleExport = [genericRateLimitsRules(30)];
 export const tenderlyFreeRateRules: RuleExport = [genericRateLimitsRules(10)];
+
+export const ponderDevRateRules: RuleExport = [
+    genericRateLimitsRules(200),
+    {
+        method: "eth_getLogs",
+        maxCount: 30,
+        period: "1s",
+        waitTime: "1s",
+    },
+    {
+        method: "eth_getBlockByNumber",
+        maxCount: 10,
+        period: "1s",
+        waitTime: "1s",
+    },
+];
