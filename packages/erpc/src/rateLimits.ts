@@ -52,6 +52,3 @@ export const pimlicoRateRules: RuleExport = [genericRateLimitsRules(400)];
 export const blockPiRateRules: RuleExport = [genericRateLimitsRules(100)];
 
 export const drpcRateRules: RuleExport = [genericRateLimitsRules(100)];
-
-export const llamaFreeRateRules: RuleExport = [genericRateLimitsRules(30)];
-export const tenderlyFreeRateRules: RuleExport = [genericRateLimitsRules(10)];

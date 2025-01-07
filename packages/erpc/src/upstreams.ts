@@ -87,25 +87,3 @@ export const drpcUpstream = {
     ignoreMethods: ["*"],
     allowMethods: drpcMethods,
 } as const satisfies UpstreamConfig;
-
-export const llamaFreeUpstreamArb = {
-    endpoint: "https://arbitrum.llamarpc.com",
-    type: "evm",
-    vendorName: "LlamaFree",
-    // Budget for rate limiting
-    rateLimitBudget: "llamaFree",
-    // Only allow chainId and getBlockBy
-    ignoreMethods: ["*"],
-    allowMethods: freeRpcMethods,
-} as const satisfies UpstreamConfig;
-
-export const tenderlyFreeUpstreamArbSepolia = {
-    endpoint: "https://arbitrum-sepolia.gateway.tenderly.co",
-    type: "evm",
-    vendorName: "TenderlyFree",
-    // Budget for rate limiting
-    rateLimitBudget: "tenderlyFree",
-    // Only allow chainId and getBlockBy
-    ignoreMethods: ["*"],
-    allowMethods: freeRpcMethods,
-} as const satisfies UpstreamConfig;
