@@ -8,7 +8,6 @@ import {
     envioRateRules,
     llamaFreeRateRules,
     pimlicoRateRules,
-    ponderDevRateRules,
     tenderlyFreeRateRules,
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
@@ -44,7 +43,6 @@ export default initErpcConfig({
         drpc: drpcRateRules,
         llamaFree: llamaFreeRateRules,
         tenderlyFree: tenderlyFreeRateRules,
-        ponderDev: ponderDevRateRules,
     })
     // Add networks to the config
     .decorate("networks", {
@@ -91,7 +89,6 @@ export default initErpcConfig({
             upstreams.drpc,
             upstreams.tenderlyFreeArbSepolia,
         ],
-        rateLimitBudget: "ponderDev",
         auth: {
             strategies: [
                 {
