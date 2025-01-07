@@ -1,6 +1,8 @@
 # Config bundler step
 FROM oven/bun:latest AS bundler
-RUN mkdir -p /temp/dev
+
+# Clean up and create directory with proper permissions
+RUN rm -rf /temp/dev || true && mkdir -p /temp/dev
 
 # Bundle everything in a single erpc.js file
 COPY . /temp/dev
