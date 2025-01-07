@@ -151,12 +151,10 @@ type EnvNetworkConfig = {
  * Create a env gated config
  */
 export function createEnvConfig<NetworkKey extends string>({
-    pgDatabase,
     network,
     networkKey,
     pollingInterval,
 }: {
-    pgDatabase?: string;
     network: EnvNetworkConfig;
     networkKey: NetworkKey;
     pollingInterval?: number;
@@ -169,10 +167,10 @@ export function createEnvConfig<NetworkKey extends string>({
 
     return createConfig({
         // db config
-        database: pgDatabase
+        database: process.env.PONDER_DATABASE_URL
             ? {
                   kind: "postgres",
-                  connectionString: `${process.env.PONDER_DATABASE_URL}/${pgDatabase}`,
+                  connectionString: process.env.PONDER_DATABASE_URL,
               }
             : {
                   kind: "pglite",
