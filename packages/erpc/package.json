@@ -1,6 +1,6 @@
 {
   "name": "@frak-indexer/erpc",
-  "description": "RPC load balancing stuff",
+  "description": "RPC load balancing using eRPC and @konfeature/erpc-config-generator",
   "private": true,
   "scripts": {
     "format": "biome check --write .",
