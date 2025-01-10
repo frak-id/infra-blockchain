@@ -1,5 +1,5 @@
-import { ponder } from "@/generated";
-import { campaignCapResetTable } from "../../ponder.schema";
+import { ponder } from "ponder:registry";
+import { campaignCapResetTable } from "ponder:schema";
 
 ponder.on(
     "Campaigns:DistributionCapReset",

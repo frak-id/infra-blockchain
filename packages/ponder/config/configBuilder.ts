@@ -1,4 +1,5 @@
-import { createConfig, mergeAbis } from "@ponder/core";
+import { createConfig, mergeAbis } from "ponder";
+import { factory } from "ponder";
 import {
     http,
     type Address,
@@ -24,6 +25,7 @@ import {
     productInteractionManagerAbi,
     purchaseFeatureFacetAbi,
     referralFeatureFacetAbi,
+    retailInteractionFacetAbi,
     webShopInteractionFacetAbi,
 } from "../abis/interactionAbis";
 import {
@@ -150,12 +152,10 @@ type EnvNetworkConfig = {
  * Create a env gated config
  */
 export function createEnvConfig<NetworkKey extends string>({
-    pgDatabase,
     network,
     networkKey,
     pollingInterval,
 }: {
-    pgDatabase?: string;
     network: EnvNetworkConfig;
     networkKey: NetworkKey;
     pollingInterval?: number;
@@ -168,10 +168,10 @@ export function createEnvConfig<NetworkKey extends string>({
 
     return createConfig({
         // db config
-        database: pgDatabase
+        database: process.env.PONDER_DATABASE_URL
             ? {
                   kind: "postgres",
-                  connectionString: `${process.env.PONDER_DATABASE_URL}/${pgDatabase}`,
+                  connectionString: process.env.PONDER_DATABASE_URL,
               }
             : {
                   kind: "pglite",
@@ -212,19 +212,20 @@ export function createEnvConfig<NetworkKey extends string>({
                     productInteractionDiamondAbi,
                     // Each facets
                     pressInteractionFacetAbi,
+                    retailInteractionFacetAbi,
                     dappInteractionFacetAbi,
                     webShopInteractionFacetAbi,
                     referralFeatureFacetAbi,
                     purchaseFeatureFacetAbi,
                 ]),
-                factory: {
+                address: factory({
                     address:
                         deployedAddresses.productInteractionManager as Address,
                     event: parseAbiItem(
                         "event InteractionContractDeployed(uint256 indexed productId, address interactionContract)"
                     ),
                     parameter: "interactionContract",
-                },
+                }),
                 network: contractNetworkConfig,
             },
             // The campaign factory
@@ -236,13 +237,13 @@ export function createEnvConfig<NetworkKey extends string>({
             // Every campaigns
             Campaigns: {
                 abi: mergeAbis([interactionCampaignAbi, referralCampaignAbi]),
-                factory: {
+                address: factory({
                     address: deployedAddresses.campaignFactory as Address,
                     event: parseAbiItem(
                         "event CampaignCreated(address campaign)"
                     ),
                     parameter: "campaign",
-                },
+                }),
                 network: contractNetworkConfig,
             },
             // The campaign banks factory
@@ -254,13 +255,13 @@ export function createEnvConfig<NetworkKey extends string>({
             // Every campaign banks
             CampaignBanks: {
                 abi: campaignBankAbi,
-                factory: {
+                address: factory({
                     address: deployedAddresses.campaignBankFactory as Address,
                     event: parseAbiItem(
                         "event CampaignBankCreated(address campaignBank)"
                     ),
                     parameter: "campaignBank",
-                },
+                }),
                 network: contractNetworkConfig,
             },
         },

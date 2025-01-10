@@ -1,10 +1,10 @@
-import { type Context, ponder } from "@/generated";
+import { type Context, ponder } from "ponder:registry";
+import { campaignTable, referralCampaignStatsTable } from "ponder:schema";
 import type { Address } from "viem";
 import {
     interactionCampaignAbi,
     referralCampaignAbi,
 } from "../../abis/campaignAbis";
-import { campaignTable, referralCampaignStatsTable } from "../../ponder.schema";
 import { emptyCampaignStats } from "../interactions/stats";
 import { bytesToString } from "../utils/format";
 

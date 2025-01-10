@@ -1,6 +1,6 @@
-import { ponder } from "@/generated";
+import { ponder } from "ponder:registry";
+import { productTable } from "ponder:schema";
 import { productRegistryAbi } from "../abis/registryAbis";
-import { productTable } from "../ponder.schema";
 import { bytesToString } from "./utils/format";
 
 ponder.on("ProductRegistry:ProductMinted", async ({ event, context }) => {

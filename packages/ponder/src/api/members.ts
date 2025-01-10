@@ -1,4 +1,12 @@
-import { ponder } from "@/generated";
+import { ponder } from "ponder:registry";
+import {
+    interactionEventTable,
+    productAdministratorTable,
+    productInteractionContractTable,
+    productTable,
+    rewardTable,
+} from "ponder:schema";
+import type { SQL } from "drizzle-orm";
 import {
     and,
     asc,
@@ -12,16 +20,8 @@ import {
     min,
     sql,
     sum,
-} from "@ponder/core";
-import type { SQL } from "drizzle-orm";
+} from "ponder";
 import { type Address, type Hex, isAddress } from "viem";
-import {
-    interactionEventTable,
-    productAdministratorTable,
-    productInteractionContractTable,
-    productTable,
-    rewardTable,
-} from "../../ponder.schema";
 
 /**
  * Params for the members fetching

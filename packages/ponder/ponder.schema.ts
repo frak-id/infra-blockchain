@@ -1,4 +1,4 @@
-import { index, onchainEnum, onchainTable, primaryKey } from "@ponder/core";
+import { index, onchainEnum, onchainTable, primaryKey } from "ponder";
 
 /* -------------------------------------------------------------------------- */
 /*                            Product related stuff                           */
@@ -79,6 +79,8 @@ export const interactionEventTypeEnum = onchainEnum("InteractionEventType", [
     "PURCHASE_COMPLETED",
     // Webshop type
     "WEBSHOP_OPENNED",
+    // Retail type
+    "CUSTOMER_MEETING",
 ]);
 
 export const interactionEventTable = onchainTable(
@@ -150,6 +152,8 @@ export const referralCampaignStatsTable = onchainTable(
         purchaseCompletedInteractions: t.bigint().notNull(),
 
         webshopOpenned: t.bigint().notNull(),
+
+        customerMeetingInteractions: t.bigint().notNull(),
 
         totalRewards: t.bigint().notNull(),
     }),

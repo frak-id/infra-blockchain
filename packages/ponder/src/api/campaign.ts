@@ -1,7 +1,7 @@
-import { ponder } from "@/generated";
-import { eq } from "@ponder/core";
+import { ponder } from "ponder:registry";
+import { bankingContractTable, campaignTable } from "ponder:schema";
+import { eq } from "ponder";
 import { type Address, type Hex, isAddress, isHex } from "viem";
-import { bankingContractTable, campaignTable } from "../../ponder.schema";
 import { getTokens } from "./tokens";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

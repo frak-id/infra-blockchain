@@ -2,14 +2,15 @@ import { ponder } from "ponder:registry";
 import { interactionEventTable } from "ponder:schema";
 import { safeIncreaseCampaignsStats } from "./stats";
 
-ponder.on("ProductInteraction:WebShopOpenned", async ({ event, context }) => {
+ponder.on("ProductInteraction:CustomerMeeting", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({
         id: event.log.id,
         interactionId: event.log.address,
         user: event.args.user,
-        type: "WEBSHOP_OPENNED",
+        type: "CUSTOMER_MEETING",
         timestamp: event.block.timestamp,
+        data: { agencyId: event.args.agencyId },
     });
 
     // Update the current campaigns stats
@@ -18,7 +19,7 @@ ponder.on("ProductInteraction:WebShopOpenned", async ({ event, context }) => {
         blockNumber: event.block.number,
         context,
         increments: {
-            webshopOpenned: 1n,
+            customerMeetingInteractions: 1n,
         },
     });
 });

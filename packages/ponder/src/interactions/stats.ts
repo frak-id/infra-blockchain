@@ -1,12 +1,12 @@
-import type { Context } from "@/generated";
-import { and, desc, eq } from "@ponder/core";
-import type { Address } from "viem";
-import { interactionCampaignAbi } from "../../abis/campaignAbis";
+import type { Context } from "ponder:registry";
 import {
     campaignTable,
     productInteractionContractTable,
     referralCampaignStatsTable,
-} from "../../ponder.schema";
+} from "ponder:schema";
+import { and, desc, eq } from "ponder";
+import type { Address } from "viem";
+import { interactionCampaignAbi } from "../../abis/campaignAbis";
 
 /**
  * Default campaign stats
@@ -19,6 +19,7 @@ export const emptyCampaignStats = {
     createReferredLinkInteractions: 0n,
     purchaseStartedInteractions: 0n,
     purchaseCompletedInteractions: 0n,
+    customerMeetingInteractions: 0n,
     webshopOpenned: 0n,
     totalRewards: 0n,
 };

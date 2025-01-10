@@ -13,9 +13,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "viem": "^2.21.54",
+    "viem": "^2.22.6",
     "sst": "3.4.18",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@konfeature/erpc-config-generator": "0.1.0",

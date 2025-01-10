@@ -1,5 +1,5 @@
 import type { Service } from "../.sst/platform/src/components/aws/service.js";
-import { vpc } from "./common.ts";
+import { dbUrl, vpc } from "./common.ts";
 
 /**
  * Get a safe SST service constructor, cause the one in .sst/plateform is not
@@ -36,19 +36,19 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
         "--config",
         configPath,
         command,
+        "--schema",
+        `ponder_${$app.stage}`,
     ];
 }
 
 /**
  * Get the ponder env and ssm variable
  */
-const erpcProject =
-    $app.stage === "production" ? "ponder-rpc" : "ponder-dev-rpc";
 const cloudmapErpcUrl = vpc.nodes.cloudmapNamespace.name.apply(
     (namespaceName) =>
-        `http://Erpc.production.frak-indexer.${namespaceName}:8080/${erpcProject}/evm`
+        `http://Erpc.production.frak-indexer.${namespaceName}:8080/ponder-rpc/evm`
 );
-const externalErpcUrl = `https://rpc.frak-labs.com/${erpcProject}/evm`;
+const externalErpcUrl = "https://rpc.frak-labs.com/ponder-rpc/evm";
 
 /**
  * Export the ponder  environment
@@ -59,13 +59,12 @@ export const ponderEnv = {
         ERPC_URL: cloudmapErpcUrl,
         INTERNAL_RPC_URL: cloudmapErpcUrl,
         EXTERNAL_RPC_URL: externalErpcUrl,
+        // Link it to the database
+        PONDER_DATABASE_URL: dbUrl,
     },
     ssm: {
         // Endpoints secrets,
         PONDER_RPC_SECRET:
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PONDER_RPC_SECRET/value",
-        // Postgres db
-        PONDER_DATABASE_URL:
-            "arn:aws:ssm:eu-west-1:262732185023:parameter/indexer/sst/Secret/PONDER_DATABASE_URL/value",
     },
 };

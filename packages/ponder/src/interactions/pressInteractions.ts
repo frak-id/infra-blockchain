@@ -1,5 +1,5 @@
-import { ponder } from "@/generated";
-import { interactionEventTable } from "../../ponder.schema";
+import { ponder } from "ponder:registry";
+import { interactionEventTable } from "ponder:schema";
 import { safeIncreaseCampaignsStats } from "./stats";
 
 ponder.on("ProductInteraction:ArticleRead", async ({ event, context }) => {
@@ -23,6 +23,7 @@ ponder.on("ProductInteraction:ArticleRead", async ({ event, context }) => {
         },
     });
 });
+
 ponder.on("ProductInteraction:ArticleOpened", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({

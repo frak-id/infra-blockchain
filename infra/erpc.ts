@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
-import { cluster, database, vpc } from "./common.ts";
+import { cluster, database, dbUrl, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
 import { SstService } from "./utils.ts";
 
@@ -30,19 +30,6 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
         healthyThreshold: 2,
         unhealthyThreshold: 5,
     },
-});
-
-/**
- * Build the erpc database URL
- */
-const dbUrl = all([
-    database.host,
-    database.port,
-    database.username,
-    database.password,
-    database.database,
-]).apply(([host, port, username, password, database]) => {
-    return `postgres://${username}:${password}@${host}:${port}/${database}`;
 });
 
 // Create the erpc service (only on prod stage)

@@ -1344,6 +1344,41 @@ export const referralFeatureFacetAbi = [
 ] as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RetailInteractionFacet
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const retailInteractionFacetAbi = [
+    { type: "fallback", stateMutability: "nonpayable" },
+    {
+        type: "function",
+        inputs: [],
+        name: "productTypeDenominator",
+        outputs: [{ name: "", internalType: "uint8", type: "uint8" }],
+        stateMutability: "pure",
+    },
+    {
+        type: "event",
+        anonymous: false,
+        inputs: [
+            {
+                name: "agencyId",
+                internalType: "bytes32",
+                type: "bytes32",
+                indexed: false,
+            },
+            {
+                name: "user",
+                internalType: "address",
+                type: "address",
+                indexed: false,
+            },
+        ],
+        name: "CustomerMeeting",
+    },
+    { type: "error", inputs: [], name: "UnknownInteraction" },
+] as const;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // WebShopInteractionFacet
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
