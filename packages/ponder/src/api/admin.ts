@@ -102,6 +102,8 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
             totalInteractions: referralCampaignStatsTable.totalInteractions,
             openInteractions: referralCampaignStatsTable.openInteractions,
             readInteractions: referralCampaignStatsTable.readInteractions,
+            customerMeetingInteractions:
+                referralCampaignStatsTable.customerMeetingInteractions,
             referredInteractions:
                 referralCampaignStatsTable.referredInteractions,
             createReferredLinkInteractions:

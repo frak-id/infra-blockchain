@@ -23,6 +23,7 @@ ponder.on("ProductInteraction:ArticleRead", async ({ event, context }) => {
         },
     });
 });
+
 ponder.on("ProductInteraction:ArticleOpened", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({

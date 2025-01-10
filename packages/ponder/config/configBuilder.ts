@@ -25,6 +25,7 @@ import {
     productInteractionManagerAbi,
     purchaseFeatureFacetAbi,
     referralFeatureFacetAbi,
+    retailInteractionFacetAbi,
     webShopInteractionFacetAbi,
 } from "../abis/interactionAbis";
 import {
@@ -211,6 +212,7 @@ export function createEnvConfig<NetworkKey extends string>({
                     productInteractionDiamondAbi,
                     // Each facets
                     pressInteractionFacetAbi,
+                    retailInteractionFacetAbi,
                     dappInteractionFacetAbi,
                     webShopInteractionFacetAbi,
                     referralFeatureFacetAbi,
