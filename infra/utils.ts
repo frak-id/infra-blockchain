@@ -37,7 +37,7 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
         configPath,
         command,
         "--schema",
-        $app.stage,
+        `ponder_${$app.stage}`,
     ];
 }
 
