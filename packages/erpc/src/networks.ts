@@ -2,9 +2,9 @@ import type { FailsafeConfig, NetworkConfig } from "@erpc-cloud/config";
 
 const defaultFailsafe: FailsafeConfig = {
     retry: {
-        maxAttempts: 5,
-        delay: "500ms",
-        backoffMaxDelay: "10s",
+        maxAttempts: 2,
+        delay: "100ms",
+        backoffMaxDelay: "2s",
         backoffFactor: 0.5,
         jitter: "200ms",
     },
@@ -19,7 +19,7 @@ export const arbNetwork = {
     failsafe: {
         ...defaultFailsafe,
         timeout: {
-            duration: "30s",
+            duration: "5s",
         },
     },
     evm: {
@@ -32,7 +32,7 @@ export const arbSepoliaNetwork = {
     failsafe: {
         ...defaultFailsafe,
         timeout: {
-            duration: "60s",
+            duration: "10s",
         },
     },
     evm: {
