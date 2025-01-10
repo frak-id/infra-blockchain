@@ -75,12 +75,13 @@ async function upsertCampaignBank({
     context: Context;
     onConflictUpdate?: Partial<typeof bankingContractTable.$inferInsert>;
 }) {
+    const haveUpdates = Object.keys(onConflictUpdate).length > 0;
     // Check if the campaign bank already exist, if yes just update it if we got stuff to update
     const campaignBank = await context.db.find(bankingContractTable, {
         id: address,
     });
     if (campaignBank) {
-        if (Object.keys(onConflictUpdate).length === 0) return;
+        if (!haveUpdates) return;
 
         await context.db
             .update(bankingContractTable, {
@@ -111,18 +112,22 @@ async function upsertCampaignBank({
     );
 
     // And upsert it
-    await context.db
-        .insert(bankingContractTable)
-        .values({
-            id: address,
-            tokenId: token,
-            totalDistributed: 0n,
-            totalClaimed: 0n,
-            productId,
-            isDistributing,
-            ...onConflictUpdate,
-        })
-        .onConflictDoUpdate(onConflictUpdate);
+    const initialQuery = context.db.insert(bankingContractTable).values({
+        id: address,
+        tokenId: token,
+        totalDistributed: 0n,
+        totalClaimed: 0n,
+        productId,
+        isDistributing,
+        ...onConflictUpdate,
+    });
+
+    // If we have updates, we need to do an update on conflict
+    if (haveUpdates) {
+        await initialQuery.onConflictDoUpdate(onConflictUpdate);
+    } else {
+        await initialQuery.onConflictDoNothing();
+    }
 
     // Upsert the token if needed
     await upsertTokenIfNeeded({
