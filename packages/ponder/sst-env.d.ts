@@ -13,5 +13,13 @@ declare module "sst" {
             service: string;
             type: "sst.aws.Service";
         };
+        blockchain: {
+            database: string;
+            host: string;
+            password: string;
+            port: number;
+            type: "sst.aws.Postgres";
+            username: string;
+        };
     }
 }

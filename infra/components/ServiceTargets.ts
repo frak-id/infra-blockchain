@@ -69,6 +69,17 @@ export class ServiceTargets extends SstComponent {
         // Get the master load balancer
         this.lb = this.getMasterLoadBalancer();
 
+        // If on local, don't deploy anything
+        if ($dev) {
+            this.targetGroups = Output.create(
+                {} as Record<string, aws.lb.TargetGroup>
+            );
+            this.listeners = Output.create(
+                {} as Record<string, aws.lb.Listener>
+            );
+            return;
+        }
+
         // Create the target groups
         const { listeners, targets } = this.createTargets();
         this.targetGroups = targets;
@@ -81,7 +92,7 @@ export class ServiceTargets extends SstComponent {
     // Get the master load balancer
     private getMasterLoadBalancer() {
         return aws.lb.getLoadBalancer({
-            name: `master-elb-${$app.stage}`,
+            name: `master-elb-${$dev ? "dev" : $app.stage}`,
         });
     }
 

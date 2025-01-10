@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "sst dev",
     "deploy:prod": "sst deploy --stage production",
     "deploy:dev": "sst deploy --stage dev",
     "format": "biome check --write .",
@@ -24,5 +25,5 @@
   "engines": {
     "node": ">=18.14"
   },
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*", "tools/"]
 }

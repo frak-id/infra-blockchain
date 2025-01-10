@@ -9,7 +9,7 @@ export const vpc = sst.aws.Vpc.get("MasterVpc", vpcId);
 
 // Get the master cluster
 export const cluster = await aws.ecs.getCluster({
-    clusterName: `master-cluster-${$app.stage}`,
+    clusterName: `master-cluster-${$dev ? "dev" : $app.stage}`,
 });
 
 /**
@@ -38,3 +38,21 @@ export const dbUrl = all([
 ]).apply(([host, port, username, password, database]) => {
     return `postgres://${username}:${password}@${host}:${port}/${database}`;
 });
+
+if ($dev) {
+    new sst.x.DevCommand("db:studio", {
+        dev: {
+            title: "[DB] Studio",
+            autostart: false,
+            command: "bun run db:studio",
+            directory: "tools",
+        },
+        environment: {
+            POSTGRES_HOST: database.host,
+            POSTGRES_DB: database.database,
+            POSTGRES_PORT: database.port.apply((p) => p.toString()),
+            POSTGRES_USER: database.username,
+            POSTGRES_PASSWORD: database.password ?? "",
+        },
+    });
+}
