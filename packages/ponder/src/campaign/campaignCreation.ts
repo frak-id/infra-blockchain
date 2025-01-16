@@ -1,5 +1,5 @@
 import { type Context, ponder } from "ponder:registry";
-import { campaignTable, referralCampaignStatsTable } from "ponder:schema";
+import { affiliationCampaignStatsTable, campaignTable } from "ponder:schema";
 import type { Address } from "viem";
 import {
     interactionCampaignAbi,
@@ -118,7 +118,7 @@ export async function upsertNewCampaign({
     // Upsert press campaign stats if it's the right type
     if (affiliationCampaignTypes.includes(type)) {
         await db
-            .insert(referralCampaignStatsTable)
+            .insert(affiliationCampaignStatsTable)
             .values({
                 campaignId: address,
                 ...emptyCampaignStats,

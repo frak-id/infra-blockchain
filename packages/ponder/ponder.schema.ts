@@ -135,8 +135,8 @@ export const campaignTable = onchainTable(
     })
 );
 
-export const referralCampaignStatsTable = onchainTable(
-    "ReferralCampaignStats",
+export const affiliationCampaignStatsTable = onchainTable(
+    "AffiliationCampaignStats",
     (t) => ({
         campaignId: t.hex().primaryKey().notNull(),
 
