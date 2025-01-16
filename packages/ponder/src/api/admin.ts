@@ -113,6 +113,7 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
             purchaseCompletedInteractions:
                 referralCampaignStatsTable.purchaseCompletedInteractions,
             totalRewards: referralCampaignStatsTable.totalRewards,
+            rewardCount: referralCampaignStatsTable.rewardCount,
         })
         .from(productAdministratorTable)
         .innerJoin(

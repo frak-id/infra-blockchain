@@ -22,6 +22,7 @@ export const emptyCampaignStats = {
     customerMeetingInteractions: 0n,
     webshopOpenned: 0n,
     totalRewards: 0n,
+    rewardCount: 0n,
 };
 
 export type StatsIncrementsParams = Partial<

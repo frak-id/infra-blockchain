@@ -156,6 +156,7 @@ export const referralCampaignStatsTable = onchainTable(
         customerMeetingInteractions: t.bigint().notNull(),
 
         totalRewards: t.bigint().notNull(),
+        rewardCount: t.bigint().notNull(),
     }),
     (table) => ({
         campaignIdx: index().on(table.campaignId),

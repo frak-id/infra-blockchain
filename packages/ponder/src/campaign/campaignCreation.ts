@@ -20,6 +20,12 @@ ponder.on("CampaignsFactory:CampaignCreated", async ({ event, context }) => {
     });
 });
 
+const affiliationCampaignTypes = [
+    "frak.campaign.affiliation-fixed",
+    "frak.campaign.affiliation-range",
+    "frak.campaign.referral",
+];
+
 /**
  * Upsert a fresh campaign in the db
  * @param address
@@ -62,6 +68,7 @@ export async function upsertNewCampaign({
                 address,
                 functionName: "getLink",
             } as const,
+            // We can still use the `getConfig` method here since it's the same for every interactions abis
             {
                 abi: referralCampaignAbi,
                 address,
@@ -109,7 +116,7 @@ export async function upsertNewCampaign({
         .onConflictDoUpdate(onConflictUpdate);
 
     // Upsert press campaign stats if it's the right type
-    if (type === "frak.campaign.referral") {
+    if (affiliationCampaignTypes.includes(type)) {
         await db
             .insert(referralCampaignStatsTable)
             .values({
