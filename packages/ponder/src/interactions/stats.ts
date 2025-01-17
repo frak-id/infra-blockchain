@@ -4,7 +4,7 @@ import {
     campaignTable,
     productInteractionContractTable,
 } from "ponder:schema";
-import { and, desc, eq } from "ponder";
+import { and, desc, eq, inArray } from "ponder";
 import type { Address } from "viem";
 import { interactionCampaignAbi } from "../../abis/campaignAbis";
 
@@ -24,6 +24,15 @@ export const emptyCampaignStats = {
     totalRewards: 0n,
     rewardCount: 0n,
 };
+
+/**
+ * All the type of campaigns that are affiliation related
+ */
+export const affiliationCampaignTypes = [
+    "frak.campaign.affiliation-fixed",
+    "frak.campaign.affiliation-range",
+    "frak.campaign.referral",
+];
 
 export type StatsIncrementsParams = Partial<
     Omit<typeof affiliationCampaignStatsTable.$inferSelect, "campaignId">
@@ -106,7 +115,7 @@ async function increaseCampaignsStats({
         .where(
             and(
                 eq(campaignTable.productId, interactionContract.productId),
-                eq(campaignTable.type, "frak.campaign.referral"),
+                inArray(campaignTable.type, affiliationCampaignTypes),
                 eq(campaignTable.attached, true)
             )
         );

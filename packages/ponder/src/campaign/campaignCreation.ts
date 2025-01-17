@@ -5,7 +5,10 @@ import {
     interactionCampaignAbi,
     referralCampaignAbi,
 } from "../../abis/campaignAbis";
-import { emptyCampaignStats } from "../interactions/stats";
+import {
+    affiliationCampaignTypes,
+    emptyCampaignStats,
+} from "../interactions/stats";
 import { bytesToString } from "../utils/format";
 
 /**
@@ -19,12 +22,6 @@ ponder.on("CampaignsFactory:CampaignCreated", async ({ event, context }) => {
         context,
     });
 });
-
-const affiliationCampaignTypes = [
-    "frak.campaign.affiliation-fixed",
-    "frak.campaign.affiliation-range",
-    "frak.campaign.referral",
-];
 
 /**
  * Upsert a fresh campaign in the db
