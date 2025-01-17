@@ -11,7 +11,7 @@ RUN cd /tmp/dev && bun build --outfile ./erpc.js --minify --target node --extern
 
 # Final image
 #FROM erpc-dev AS final
-FROM ghcr.io/erpc/erpc@sha256:896792cfeb49093d1d922649962a587d00a963adb7de0cff67ce88a87a044598 AS final
+FROM ghcr.io/erpc/erpc@sha256:4438b0da324ad352009b15a723b7e09359f4da5a9e07ae60eb6812ff6160d0da AS final
 
 # Install curl, will be used for healthcheck
 RUN apt-get update && apt-get install -y curl
