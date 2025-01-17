@@ -42,10 +42,12 @@ export async function upsertNewCampaign({
     context: Context;
     onConflictUpdate?: Partial<typeof campaignTable.$inferInsert>;
 }) {
+    const haveUpdates = Object.keys(onConflictUpdate).length > 0;
+
     // If the campaign already exist, just update it
     const campaign = await db.find(campaignTable, { id: address });
     if (campaign) {
-        if (Object.keys(onConflictUpdate).length === 0) return;
+        if (!haveUpdates) return;
 
         await db
             .update(campaignTable, {
@@ -94,26 +96,29 @@ export async function upsertNewCampaign({
     const formattedName = bytesToString(name);
 
     // Create the campaign
-    await db
-        .insert(campaignTable)
-        .values({
-            id: address,
-            type,
-            name: formattedName,
-            version,
-            productId,
-            interactionContractId: interactionContract,
-            attached: false,
-            attachTimestamp: 0n,
-            bankingContractId:
-                configResult.status === "success"
-                    ? configResult.result[2]
-                    : undefined,
-            isAuthorisedOnBanking: false,
-            lastUpdateBlock: blockNumber,
-            ...onConflictUpdate,
-        })
-        .onConflictDoUpdate(onConflictUpdate);
+    const initialQuery = db.insert(campaignTable).values({
+        id: address,
+        type,
+        name: formattedName,
+        version,
+        productId,
+        interactionContractId: interactionContract,
+        attached: false,
+        attachTimestamp: 0n,
+        bankingContractId:
+            configResult.status === "success"
+                ? configResult.result[2]
+                : undefined,
+        isAuthorisedOnBanking: false,
+        lastUpdateBlock: blockNumber,
+        ...onConflictUpdate,
+    });
+
+    if (haveUpdates) {
+        await initialQuery.onConflictDoUpdate(onConflictUpdate);
+    } else {
+        await initialQuery.onConflictDoNothing();
+    }
 
     // Upsert press campaign stats if it's the right type
     if (affiliationCampaignTypes.includes(type)) {
