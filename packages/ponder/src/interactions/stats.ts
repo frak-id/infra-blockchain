@@ -1,8 +1,8 @@
 import type { Context } from "ponder:registry";
 import {
+    affiliationCampaignStatsTable,
     campaignTable,
     productInteractionContractTable,
-    referralCampaignStatsTable,
 } from "ponder:schema";
 import { and, desc, eq } from "ponder";
 import type { Address } from "viem";
@@ -22,10 +22,11 @@ export const emptyCampaignStats = {
     customerMeetingInteractions: 0n,
     webshopOpenned: 0n,
     totalRewards: 0n,
+    rewardCount: 0n,
 };
 
 export type StatsIncrementsParams = Partial<
-    Omit<typeof referralCampaignStatsTable.$inferSelect, "campaignId">
+    Omit<typeof affiliationCampaignStatsTable.$inferSelect, "campaignId">
 >;
 
 type IncreaseCampaignStatsArgs = {
@@ -146,7 +147,7 @@ async function increaseCampaignsStats({
 
     // Upsert every stats
     await db
-        .insert(referralCampaignStatsTable)
+        .insert(affiliationCampaignStatsTable)
         .values(
             activeCampaigns.map((campaign) => ({
                 ...emptyCampaignStats,
@@ -159,7 +160,7 @@ async function increaseCampaignsStats({
 
 // Define a function to handle the update logic
 function updateStats(
-    current: typeof referralCampaignStatsTable.$inferSelect,
+    current: typeof affiliationCampaignStatsTable.$inferSelect,
     increments: StatsIncrementsParams
 ) {
     const updatedStats = {

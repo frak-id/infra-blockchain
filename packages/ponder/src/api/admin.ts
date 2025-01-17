@@ -1,11 +1,11 @@
 import { ponder } from "ponder:registry";
 import {
+    affiliationCampaignStatsTable,
     campaignTable,
     interactionEventTable,
     productAdministratorTable,
     productInteractionContractTable,
     productTable,
-    referralCampaignStatsTable,
 } from "ponder:schema";
 import { countDistinct, eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
@@ -99,20 +99,21 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
             id: campaignTable.id,
             name: campaignTable.name,
             bank: campaignTable.bankingContractId,
-            totalInteractions: referralCampaignStatsTable.totalInteractions,
-            openInteractions: referralCampaignStatsTable.openInteractions,
-            readInteractions: referralCampaignStatsTable.readInteractions,
+            totalInteractions: affiliationCampaignStatsTable.totalInteractions,
+            openInteractions: affiliationCampaignStatsTable.openInteractions,
+            readInteractions: affiliationCampaignStatsTable.readInteractions,
             customerMeetingInteractions:
-                referralCampaignStatsTable.customerMeetingInteractions,
+                affiliationCampaignStatsTable.customerMeetingInteractions,
             referredInteractions:
-                referralCampaignStatsTable.referredInteractions,
+                affiliationCampaignStatsTable.referredInteractions,
             createReferredLinkInteractions:
-                referralCampaignStatsTable.createReferredLinkInteractions,
+                affiliationCampaignStatsTable.createReferredLinkInteractions,
             purchaseStartedInteractions:
-                referralCampaignStatsTable.purchaseStartedInteractions,
+                affiliationCampaignStatsTable.purchaseStartedInteractions,
             purchaseCompletedInteractions:
-                referralCampaignStatsTable.purchaseCompletedInteractions,
-            totalRewards: referralCampaignStatsTable.totalRewards,
+                affiliationCampaignStatsTable.purchaseCompletedInteractions,
+            totalRewards: affiliationCampaignStatsTable.totalRewards,
+            rewardCount: affiliationCampaignStatsTable.rewardCount,
         })
         .from(productAdministratorTable)
         .innerJoin(
@@ -120,8 +121,8 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
             eq(productAdministratorTable.productId, campaignTable.productId)
         )
         .innerJoin(
-            referralCampaignStatsTable,
-            eq(campaignTable.id, referralCampaignStatsTable.campaignId)
+            affiliationCampaignStatsTable,
+            eq(campaignTable.id, affiliationCampaignStatsTable.campaignId)
         )
         .where(eq(productAdministratorTable.user, wallet));
 
