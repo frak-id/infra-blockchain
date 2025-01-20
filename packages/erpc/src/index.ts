@@ -66,22 +66,6 @@ export default initErpcConfig({
             ],
         },
     }))
-    // Add our ponder dev project
-    .addProject(({ store: { upstreams, networks } }) => ({
-        id: "ponder-dev-rpc",
-        networks: [networks.arbitrumSepolia],
-        upstreams: [upstreams.alchemy, upstreams.envio, upstreams.drpc],
-        auth: {
-            strategies: [
-                {
-                    type: "secret",
-                    secret: {
-                        value: process.env.PONDER_RPC_SECRET ?? "a",
-                    },
-                },
-            ],
-        },
-    }))
     // Add our wallet project
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "nexus-rpc",

@@ -13,7 +13,7 @@
     "update:deps": "npm-check-updates -ui -ws"
   },
   "devDependencies": {
-    "npm-check-updates": "^17.1.13",
+    "npm-check-updates": "^17.1.14",
     "@biomejs/biome": "1.9.4",
     "@pulumi/aws": "^6.62.2",
     "@pulumi/pulumi": "^3.142.0",

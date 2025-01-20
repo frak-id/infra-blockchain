@@ -26,6 +26,11 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
         : "config/config-dev.ts";
     const command = type === "indexer" ? "start" : "serve";
 
+    // Build the schema name we will use ($stage_DD_MM_YYYY)
+    const date = new Date();
+    const schemaName = `ponder_${$app.stage}_${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
+
+    // Return the full docker entrypoint command
     return [
         "bun",
         "ponder",
@@ -37,7 +42,7 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
         configPath,
         command,
         "--schema",
-        `ponder_${$app.stage}`,
+        schemaName,
     ];
 }
 
