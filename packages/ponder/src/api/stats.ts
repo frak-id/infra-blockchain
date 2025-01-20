@@ -1,10 +1,15 @@
 import { ponder } from "ponder:registry";
 import {
+    affiliationCampaignStatsTable,
+    bankingContractTable,
+    campaignTable,
     interactionEventTable,
     productInteractionContractTable,
     productTable,
+    rewardTable,
 } from "ponder:schema";
-import { count, countDistinct, eq, gte } from "ponder";
+import { count, countDistinct, eq, gte, inArray, max } from "ponder";
+import { type Address, type Hex, isAddressEqual } from "viem";
 
 /**
  * Get the overall system stats
@@ -75,4 +80,133 @@ ponder.get("/stats/overall", async (ctx) => {
         },
         products: totalProducts[0]?.count,
     });
+});
+
+/**
+ * Get all the wallets related stats
+ */
+ponder.get("/stats/wallets", async (ctx) => {
+    // Total wallets with interactions
+    const allWallets = await ctx.db
+        .select({
+            wallet: interactionEventTable.user,
+            interactionsContract: interactionEventTable.interactionId,
+            interactions: countDistinct(interactionEventTable.id),
+            lastInteraction: max(interactionEventTable.timestamp),
+        })
+        .from(interactionEventTable)
+        .groupBy(
+            interactionEventTable.user,
+            interactionEventTable.interactionId
+        );
+
+    // Get the product related to each interactions contract
+    const uniqueInteractionContracts = [
+        ...new Set(allWallets.map((wallet) => wallet.interactionsContract)),
+    ] as Hex[];
+    const uniqueWallets = [
+        ...new Set(allWallets.map((wallet) => wallet.wallet)),
+    ] as Address[];
+
+    // Then find the list of products on which each wallet interacted
+    const products = await ctx.db
+        .select({
+            id: productInteractionContractTable.id,
+            productId: productInteractionContractTable.productId,
+            name: productTable.name,
+        })
+        .from(productInteractionContractTable)
+        .innerJoin(
+            productTable,
+            eq(productInteractionContractTable.productId, productTable.id)
+        )
+        .where(
+            inArray(
+                productInteractionContractTable.id,
+                uniqueInteractionContracts
+            )
+        );
+
+    // Then find the rewards for each wallets
+    const rewards = await ctx.db
+        .select({
+            wallet: rewardTable.user,
+            totalReceived: rewardTable.totalReceived,
+            totalClaimed: rewardTable.totalReceived,
+        })
+        .from(rewardTable)
+        .where(inArray(rewardTable.user, uniqueWallets));
+
+    // Merge everything together (list = { wallet: products: [], rewards: []})
+    const output = uniqueWallets.map((wallet) => {
+        // Build the product map for this wallet
+        const walletWithProducts = allWallets.filter((wallet) =>
+            isAddressEqual(wallet.wallet, wallet.wallet)
+        );
+        const finalProducts = walletWithProducts.map((wallet) => {
+            const contract = wallet.interactionsContract;
+            const product = products.find((product) =>
+                isAddressEqual(product.id, contract)
+            );
+            return {
+                id: product?.id,
+                name: product?.name,
+                interactions: wallet.interactions,
+                lastTimestamp: wallet.lastInteraction,
+            };
+        });
+
+        return {
+            wallet: wallet,
+            products: finalProducts,
+            rewards: rewards.filter((reward) =>
+                isAddressEqual(reward.wallet, wallet)
+            ),
+        };
+    });
+
+    return ctx.json({
+        allWallets,
+        uniqueInteractionContracts,
+        products,
+        output,
+    });
+});
+
+/**
+ * Get some campaign related stats
+ */
+ponder.get("/stats/campaigns", async (ctx) => {
+    const afilliationCampaigns = await ctx.db
+        .select({
+            id: campaignTable.id,
+            name: campaignTable.name,
+            bank: campaignTable.bankingContractId,
+            totalInteractions: affiliationCampaignStatsTable.totalInteractions,
+            openInteractions: affiliationCampaignStatsTable.openInteractions,
+            readInteractions: affiliationCampaignStatsTable.readInteractions,
+            customerMeetingInteractions:
+                affiliationCampaignStatsTable.customerMeetingInteractions,
+            referredInteractions:
+                affiliationCampaignStatsTable.referredInteractions,
+            createReferredLinkInteractions:
+                affiliationCampaignStatsTable.createReferredLinkInteractions,
+            purchaseStartedInteractions:
+                affiliationCampaignStatsTable.purchaseStartedInteractions,
+            purchaseCompletedInteractions:
+                affiliationCampaignStatsTable.purchaseCompletedInteractions,
+            totalRewards: affiliationCampaignStatsTable.totalRewards,
+            rewardCount: affiliationCampaignStatsTable.rewardCount,
+        })
+        .from(affiliationCampaignStatsTable)
+        .innerJoin(
+            campaignTable,
+            eq(affiliationCampaignStatsTable.campaignId, campaignTable.id)
+        )
+        .innerJoin(
+            bankingContractTable,
+            eq(campaignTable.bankingContractId, bankingContractTable.id)
+        );
+
+    return ctx.json(afilliationCampaigns);
 });
