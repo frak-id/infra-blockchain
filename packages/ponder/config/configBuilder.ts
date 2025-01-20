@@ -44,7 +44,10 @@ type EnvNetworkConfig = {
  * Set of old factory addresses we wan't to continue to index
  */
 const oldAddresses = {
-    campaignFactoy: ["0x0000000000278e0EFbC5968020A798AaB1571E5c"],
+    campaignFactoy: [
+        "0x0000000000278e0EFbC5968020A798AaB1571E5c",
+        "0x3401B830b4C6805Dc192906679514e849aFeda41",
+    ],
 } as const;
 
 /**
