@@ -1,11 +1,11 @@
 import { ponder } from "ponder:registry";
 import {
+    affiliationCampaignStatsTable,
     bankingContractTable,
     campaignTable,
     productAdministratorTable,
     productInteractionContractTable,
     productTable,
-    referralCampaignStatsTable,
     tokenTable,
 } from "ponder:schema";
 import { eq, inArray } from "ponder";
@@ -133,10 +133,10 @@ ponder.get("/products/info", async ({ req, db, json }) => {
     const campaignStats = campaigns.length
         ? await db
               .select()
-              .from(referralCampaignStatsTable)
+              .from(affiliationCampaignStatsTable)
               .where(
                   inArray(
-                      referralCampaignStatsTable.campaignId,
+                      affiliationCampaignStatsTable.campaignId,
                       campaigns.map((c) => c.id)
                   )
               )

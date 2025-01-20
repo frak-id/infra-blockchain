@@ -60,6 +60,7 @@ ponder.on("CampaignBanks:RewardAdded", async ({ event, context }) => {
         blockNumber: event.block.number,
         increments: {
             totalRewards: event.args.amount,
+            rewardCount: 1n,
         },
     });
 });

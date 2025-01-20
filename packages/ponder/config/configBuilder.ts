@@ -12,6 +12,8 @@ import {
 } from "viem";
 import * as deployedAddresses from "../abis/addresses.json";
 import {
+    affiliationFixedCampaignAbi,
+    affiliationRangeCampaignAbi,
     campaignBankAbi,
     campaignBankFactoryAbi,
     campaignFactoryAbi,
@@ -32,6 +34,149 @@ import {
     productAdministratorRegistryAbi,
     productRegistryAbi,
 } from "../abis/registryAbis";
+
+type EnvNetworkConfig = {
+    chainId: number;
+    deploymentBlock?: number;
+};
+
+/**
+ * Set of old factory addresses we wan't to continue to index
+ */
+const oldAddresses = {
+    campaignFactoy: ["0x0000000000278e0EFbC5968020A798AaB1571E5c"],
+} as const;
+
+/**
+ * Create a env gated config
+ */
+export function createEnvConfig<NetworkKey extends string>({
+    network,
+    networkKey,
+    pollingInterval,
+}: {
+    network: EnvNetworkConfig;
+    networkKey: NetworkKey;
+    pollingInterval?: number;
+}) {
+    const contractNetworkConfig = {
+        [networkKey]: {
+            startBlock: network.deploymentBlock,
+        },
+    } as const;
+
+    return createConfig({
+        // db config
+        database: process.env.PONDER_DATABASE_URL
+            ? {
+                  kind: "postgres",
+                  connectionString: process.env.PONDER_DATABASE_URL,
+              }
+            : {
+                  kind: "pglite",
+              },
+        // networks config
+        networks: {
+            [networkKey]: {
+                chainId: network.chainId,
+                transport: getTransport(network.chainId),
+                // Polling interval to 60sec by default
+                pollingInterval: pollingInterval ?? 60_000,
+            },
+        },
+        // contracts config
+        contracts: {
+            // The product registry
+            ProductRegistry: {
+                abi: productRegistryAbi,
+                address: deployedAddresses.productRegistry as Address,
+                network: contractNetworkConfig,
+            },
+            // The product registry
+            ProductAdministratorRegistry: {
+                abi: productAdministratorRegistryAbi,
+                address:
+                    deployedAddresses.productAdministratorRegistry as Address,
+                network: contractNetworkConfig,
+            },
+            // The interaction manager
+            ProductInteractionManager: {
+                abi: productInteractionManagerAbi,
+                address: deployedAddresses.productInteractionManager as Address,
+                network: contractNetworkConfig,
+            },
+            // Every product interactions
+            ProductInteraction: {
+                abi: mergeAbis([
+                    productInteractionDiamondAbi,
+                    // Each facets
+                    pressInteractionFacetAbi,
+                    retailInteractionFacetAbi,
+                    dappInteractionFacetAbi,
+                    webShopInteractionFacetAbi,
+                    referralFeatureFacetAbi,
+                    purchaseFeatureFacetAbi,
+                ]),
+                address: factory({
+                    address:
+                        deployedAddresses.productInteractionManager as Address,
+                    event: parseAbiItem(
+                        "event InteractionContractDeployed(uint256 indexed productId, address interactionContract)"
+                    ),
+                    parameter: "interactionContract",
+                }),
+                network: contractNetworkConfig,
+            },
+            // The campaign factory
+            CampaignsFactory: {
+                abi: campaignFactoryAbi,
+                address: [
+                    deployedAddresses.campaignFactory as Address,
+                    ...oldAddresses.campaignFactoy,
+                ],
+                network: contractNetworkConfig,
+            },
+            // Every campaigns
+            Campaigns: {
+                abi: mergeAbis([
+                    interactionCampaignAbi,
+                    referralCampaignAbi,
+                    affiliationFixedCampaignAbi,
+                    affiliationRangeCampaignAbi,
+                ]),
+                address: factory({
+                    address: [
+                        deployedAddresses.campaignFactory as Address,
+                        ...oldAddresses.campaignFactoy,
+                    ],
+                    event: parseAbiItem(
+                        "event CampaignCreated(address campaign)"
+                    ),
+                    parameter: "campaign",
+                }),
+                network: contractNetworkConfig,
+            },
+            // The campaign banks factory
+            CampaignBanksFactory: {
+                abi: campaignBankFactoryAbi,
+                address: deployedAddresses.campaignBankFactory as Address,
+                network: contractNetworkConfig,
+            },
+            // Every campaign banks
+            CampaignBanks: {
+                abi: campaignBankAbi,
+                address: factory({
+                    address: deployedAddresses.campaignBankFactory as Address,
+                    event: parseAbiItem(
+                        "event CampaignBankCreated(address campaignBank)"
+                    ),
+                    parameter: "campaignBank",
+                }),
+                network: contractNetworkConfig,
+            },
+        },
+    });
+}
 
 type GetLogsRpcType = Extract<
     PublicRpcSchema[number],
@@ -141,129 +286,4 @@ function getTransport(chainId: number) {
 
     // Return the base client wrapper in a cooldown one, aiming to slow down real time indexing on arbitrum / arbitrum sepolia
     return safeClient(baseClient);
-}
-
-type EnvNetworkConfig = {
-    chainId: number;
-    deploymentBlock?: number;
-};
-
-/**
- * Create a env gated config
- */
-export function createEnvConfig<NetworkKey extends string>({
-    network,
-    networkKey,
-    pollingInterval,
-}: {
-    network: EnvNetworkConfig;
-    networkKey: NetworkKey;
-    pollingInterval?: number;
-}) {
-    const contractNetworkConfig = {
-        [networkKey]: {
-            startBlock: network.deploymentBlock,
-        },
-    } as const;
-
-    return createConfig({
-        // db config
-        database: process.env.PONDER_DATABASE_URL
-            ? {
-                  kind: "postgres",
-                  connectionString: process.env.PONDER_DATABASE_URL,
-              }
-            : {
-                  kind: "pglite",
-              },
-        // networks config
-        networks: {
-            [networkKey]: {
-                chainId: network.chainId,
-                transport: getTransport(network.chainId),
-                // Polling interval to 60sec by default
-                pollingInterval: pollingInterval ?? 60_000,
-            },
-        },
-        // contracts config
-        contracts: {
-            // The product registry
-            ProductRegistry: {
-                abi: productRegistryAbi,
-                address: deployedAddresses.productRegistry as Address,
-                network: contractNetworkConfig,
-            },
-            // The product registry
-            ProductAdministratorRegistry: {
-                abi: productAdministratorRegistryAbi,
-                address:
-                    deployedAddresses.productAdministratorRegistry as Address,
-                network: contractNetworkConfig,
-            },
-            // The interaction manager
-            ProductInteractionManager: {
-                abi: productInteractionManagerAbi,
-                address: deployedAddresses.productInteractionManager as Address,
-                network: contractNetworkConfig,
-            },
-            // Every product interactions
-            ProductInteraction: {
-                abi: mergeAbis([
-                    productInteractionDiamondAbi,
-                    // Each facets
-                    pressInteractionFacetAbi,
-                    retailInteractionFacetAbi,
-                    dappInteractionFacetAbi,
-                    webShopInteractionFacetAbi,
-                    referralFeatureFacetAbi,
-                    purchaseFeatureFacetAbi,
-                ]),
-                address: factory({
-                    address:
-                        deployedAddresses.productInteractionManager as Address,
-                    event: parseAbiItem(
-                        "event InteractionContractDeployed(uint256 indexed productId, address interactionContract)"
-                    ),
-                    parameter: "interactionContract",
-                }),
-                network: contractNetworkConfig,
-            },
-            // The campaign factory
-            CampaignsFactory: {
-                abi: campaignFactoryAbi,
-                address: deployedAddresses.campaignFactory as Address,
-                network: contractNetworkConfig,
-            },
-            // Every campaigns
-            Campaigns: {
-                abi: mergeAbis([interactionCampaignAbi, referralCampaignAbi]),
-                address: factory({
-                    address: deployedAddresses.campaignFactory as Address,
-                    event: parseAbiItem(
-                        "event CampaignCreated(address campaign)"
-                    ),
-                    parameter: "campaign",
-                }),
-                network: contractNetworkConfig,
-            },
-            // The campaign banks factory
-            CampaignBanksFactory: {
-                abi: campaignBankFactoryAbi,
-                address: deployedAddresses.campaignBankFactory as Address,
-                network: contractNetworkConfig,
-            },
-            // Every campaign banks
-            CampaignBanks: {
-                abi: campaignBankAbi,
-                address: factory({
-                    address: deployedAddresses.campaignBankFactory as Address,
-                    event: parseAbiItem(
-                        "event CampaignBankCreated(address campaignBank)"
-                    ),
-                    parameter: "campaignBank",
-                }),
-                network: contractNetworkConfig,
-            },
-        },
-    });
 }
