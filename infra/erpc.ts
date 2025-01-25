@@ -1,8 +1,7 @@
 import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
-import { cluster, database, dbUrl, vpc } from "./common.ts";
+import { database, dbUrl, sstCluster, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
-import { SstService } from "./utils.ts";
 
 if ($app.stage !== "production") {
     throw new Error("eRPC is reserved for production usage");
@@ -32,13 +31,10 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
     },
 });
 
-// Create the erpc service (only on prod stage)
-export const erpcService = new SstService("Erpc", {
-    vpc,
-    cluster: {
-        name: cluster.clusterName,
-        arn: cluster.arn,
-    },
+/**
+ * Add the erpc service to our master cluster
+ */
+sstCluster.addService("Erpc", {
     // hardware config
     cpu: "0.25 vCPU",
     memory: "0.5 GB",

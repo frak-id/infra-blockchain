@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
-import { cluster, database, vpc } from "./common.ts";
+import { database, sstCluster, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
-import { SstService, getPonderEntrypoint, ponderEnv } from "./utils.ts";
+import { getPonderEntrypoint, ponderEnv } from "./utils.ts";
 
 // Get the image we will deploy
 const image = await aws.ecr.getImage({
@@ -31,12 +31,7 @@ const ponderServiceTargets = new ServiceTargets("PonderDevServiceDomain", {
 /**
  * Build the ponder indexing service
  */
-export const ponderIndexer = new SstService("PonderDevIndexer", {
-    vpc,
-    cluster: {
-        name: cluster.clusterName,
-        arn: cluster.arn,
-    },
+sstCluster.addService("PonderDevIndexer", {
     // Disable scaling on dev
     scaling: {
         cpuUtilization: false,

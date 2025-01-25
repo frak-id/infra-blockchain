@@ -8,8 +8,10 @@ const { id: vpcId } = await aws.ec2.getVpc({
 export const vpc = sst.aws.Vpc.get("MasterVpc", vpcId);
 
 // Get the master cluster
-export const cluster = await aws.ecs.getCluster({
-    clusterName: `master-cluster-${$dev ? "dev" : $app.stage}`,
+const clusterName = `master-cluster-${$dev ? "dev" : $app.stage}`;
+export const sstCluster = sst.aws.Cluster.get("MasterCluster", {
+    id: Output.create(aws.ecs.getCluster({ clusterName })).apply((c) => c.id),
+    vpc: vpc,
 });
 
 /**
