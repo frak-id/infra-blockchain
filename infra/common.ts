@@ -56,5 +56,6 @@ if ($dev) {
             POSTGRES_USER: database.username,
             POSTGRES_PASSWORD: database.password ?? "",
         },
+        link: [database],
     });
 }
