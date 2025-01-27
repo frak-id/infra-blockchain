@@ -140,10 +140,10 @@ ponder.get("/stats/wallets", async (ctx) => {
     // Merge everything together (list = { wallet: products: [], rewards: []})
     const output = uniqueWallets.map((wallet) => {
         // Build the product map for this wallet
-        const walletWithProducts = allWallets.filter((wallet) =>
-            isAddressEqual(wallet.wallet, wallet.wallet)
+        const walletWithProducts = allWallets.filter((aWallet) =>
+            isAddressEqual(aWallet.wallet, wallet)
         );
-        const finalProducts = walletWithProducts.map((wallet) => {
+        const allConcernedProducts = walletWithProducts.map((wallet) => {
             const contract = wallet.interactionsContract;
             const product = products.find((product) =>
                 isAddressEqual(product.id, contract)
@@ -158,19 +158,14 @@ ponder.get("/stats/wallets", async (ctx) => {
 
         return {
             wallet: wallet,
-            products: finalProducts,
+            products: allConcernedProducts,
             rewards: rewards.filter((reward) =>
                 isAddressEqual(reward.wallet, wallet)
             ),
         };
     });
 
-    return ctx.json({
-        allWallets,
-        uniqueInteractionContracts,
-        products,
-        output,
-    });
+    return ctx.json(output);
 });
 
 /**
