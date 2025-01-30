@@ -32,7 +32,7 @@ export const envioRateRules: RuleExport = [
 ];
 
 export const alchemyRateRules: RuleExport = [
-    genericRateLimitsRules(200),
+    genericRateLimitsRules(100),
     {
         method: "eth_getLogs",
         maxCount: 20,
@@ -52,3 +52,5 @@ export const pimlicoRateRules: RuleExport = [genericRateLimitsRules(400)];
 export const blockPiRateRules: RuleExport = [genericRateLimitsRules(100)];
 
 export const drpcRateRules: RuleExport = [genericRateLimitsRules(100)];
+
+export const dwelirRateRules: RuleExport = [genericRateLimitsRules(100)];

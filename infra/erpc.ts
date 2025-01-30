@@ -82,6 +82,8 @@ sstCluster.addService("Erpc", {
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PIMLICO_API_KEY/value",
         DRPC_API_KEY:
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/DRPC_API_KEY/value",
+        DWELIR_API_KEY:
+            "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/DWELIR_API_KEY/value",
         // Endpoints secrets,
         PONDER_RPC_SECRET:
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PONDER_RPC_SECRET/value",
@@ -106,7 +108,7 @@ sstCluster.addService("Erpc", {
                     }))
             ),
             // Ensure erpc reach a steady state before continuing the deployment process
-            waitForSteadyState: true
+            waitForSteadyState: true,
         },
     },
 });

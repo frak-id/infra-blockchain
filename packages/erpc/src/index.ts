@@ -5,6 +5,7 @@ import {
     alchemyRateRules,
     blockPiRateRules,
     drpcRateRules,
+    dwelirRateRules,
     envioRateRules,
     pimlicoRateRules,
 } from "./rateLimits";
@@ -12,6 +13,8 @@ import { cacheConfig } from "./storage";
 import {
     alchemyUpstream,
     drpcUpstream,
+    dwelirArbSepoliaUpstream,
+    dwelirArbUpstream,
     envioUpstream,
     pimlicoUpstream,
 } from "./upstreams";
@@ -37,6 +40,7 @@ export default initErpcConfig({
         pimlico: pimlicoRateRules,
         blockPi: blockPiRateRules,
         drpc: drpcRateRules,
+        dwelir: dwelirRateRules,
     })
     // Add networks to the config
     .decorate("networks", {
@@ -49,12 +53,20 @@ export default initErpcConfig({
         alchemy: alchemyUpstream,
         pimlico: pimlicoUpstream,
         drpc: drpcUpstream,
+        dwelirArb: dwelirArbUpstream,
+        dwelirArbSepolia: dwelirArbSepoliaUpstream,
     })
     // Add our ponder prod project
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "ponder-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [upstreams.alchemy, upstreams.envio, upstreams.drpc],
+        upstreams: [
+            upstreams.alchemy,
+            upstreams.envio,
+            upstreams.drpc,
+            upstreams.dwelirArb,
+            upstreams.dwelirArbSepolia,
+        ],
         auth: {
             strategies: [
                 {
@@ -70,7 +82,13 @@ export default initErpcConfig({
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "nexus-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [upstreams.alchemy, upstreams.drpc, upstreams.pimlico],
+        upstreams: [
+            upstreams.alchemy,
+            upstreams.drpc,
+            upstreams.pimlico,
+            upstreams.dwelirArb,
+            upstreams.dwelirArbSepolia,
+        ],
         auth: {
             strategies: [
                 {

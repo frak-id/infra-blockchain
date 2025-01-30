@@ -9,6 +9,9 @@ if (!process.env.PIMLICO_API_KEY) {
 if (!process.env.DRPC_API_KEY) {
     throw new Error("Missing DRPC_API_KEY environment variable");
 }
+if (!process.env.DWELIR_API_KEY) {
+    throw new Error("Missing DWELIR_API_KEY environment variable");
+}
 
 /**
  * Method specifics for for the smart wallets
@@ -81,6 +84,28 @@ export const drpcUpstream = {
     endpoint: `drpc://${process.env.DRPC_API_KEY}`,
     type: "evm+drpc",
     vendorName: "drpc",
+    // Budget for rate limiting
+    rateLimitBudget: "drpc",
+    // Only allow chainId, getBlockBy and getLogs
+    ignoreMethods: ["*"],
+    allowMethods: drpcMethods,
+} as const satisfies UpstreamConfig;
+
+export const dwelirArbUpstream = {
+    endpoint: `https://api-arbitrum-mainnet-archive.dwellir.com/${process.env.DWELIR_API_KEY}`,
+    type: "evm",
+    vendorName: "dwelir",
+    // Budget for rate limiting
+    rateLimitBudget: "drpc",
+    // Only allow chainId, getBlockBy and getLogs
+    ignoreMethods: ["*"],
+    allowMethods: drpcMethods,
+} as const satisfies UpstreamConfig;
+
+export const dwelirArbSepoliaUpstream = {
+    endpoint: `https://api-arbitrum-sepolia-archive.dwellir.com/${process.env.DWELIR_API_KEY}`,
+    type: "evm",
+    vendorName: "dwelir",
     // Budget for rate limiting
     rateLimitBudget: "drpc",
     // Only allow chainId, getBlockBy and getLogs
