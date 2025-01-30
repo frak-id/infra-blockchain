@@ -105,6 +105,8 @@ sstCluster.addService("Erpc", {
                         ),
                     }))
             ),
+            // Ensure erpc reach a steady state before continuing the deployment process
+            waitForSteadyState: true
         },
     },
 });
