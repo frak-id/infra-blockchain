@@ -34,7 +34,7 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
 /**
  * Add the erpc service to our master cluster
  */
-sstCluster.addService("Erpc", {
+export const erpcService = sstCluster.addService("Erpc", {
     // hardware config
     cpu: "0.25 vCPU",
     memory: "0.5 GB",

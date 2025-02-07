@@ -30,7 +30,7 @@ export const arbNetwork = {
         chainId: 42161,
         integrity: {
             enforceGetLogsBlockRange: true,
-        }
+        },
     },
 } as const satisfies NetworkConfig;
 
@@ -46,7 +46,7 @@ export const arbSepoliaNetwork = {
         chainId: 421614,
         integrity: {
             enforceGetLogsBlockRange: true,
-        }
+        },
     },
     // selectionPolicy: {
     //     // Evaluate upstream every 5min
