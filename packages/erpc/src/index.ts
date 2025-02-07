@@ -5,6 +5,7 @@ import {
     alchemyRateRules,
     blockPiRateRules,
     drpcRateRules,
+    dwelirRateRules,
     envioRateRules,
     pimlicoRateRules,
 } from "./rateLimits";
@@ -12,6 +13,8 @@ import { cacheConfig } from "./storage";
 import {
     alchemyUpstream,
     drpcUpstream,
+    dwelirArbSepoliaUpstream,
+    dwelirArbUpstream,
     envioUpstream,
     pimlicoUpstream,
 } from "./upstreams";
@@ -20,7 +23,7 @@ import {
  * Build our top level erpc config
  */
 export default initErpcConfig({
-    logLevel: (process.env.ERPC_LOG_LEVEL ?? "info") as LogLevel,
+    logLevel: (process.env.ERPC_LOG_LEVEL ?? "debug") as LogLevel,
     database: {
         evmJsonRpcCache: cacheConfig,
     },
@@ -29,7 +32,13 @@ export default initErpcConfig({
         maxTimeout: "60s",
         listenV6: false,
     },
-    metrics: { enabled: false },
+    metrics: { 
+        enabled: true,
+        listenV4: true,
+        hostV4: "0.0.0.0",
+        port: 6060,
+        listenV6: false,
+     },
 })
     .addRateLimiters({
         alchemy: alchemyRateRules,
@@ -37,6 +46,7 @@ export default initErpcConfig({
         pimlico: pimlicoRateRules,
         blockPi: blockPiRateRules,
         drpc: drpcRateRules,
+        dwelir: dwelirRateRules,
     })
     // Add networks to the config
     .decorate("networks", {
@@ -49,12 +59,21 @@ export default initErpcConfig({
         alchemy: alchemyUpstream,
         pimlico: pimlicoUpstream,
         drpc: drpcUpstream,
+        dwelirArb: dwelirArbUpstream,
+        dwelirArbSepolia: dwelirArbSepoliaUpstream,
     })
     // Add our ponder prod project
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "ponder-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [upstreams.alchemy, upstreams.envio, upstreams.drpc],
+        upstreams: [
+            upstreams.alchemy,
+            upstreams.envio,
+            upstreams.drpc,
+            upstreams.dwelirArb,
+            upstreams.dwelirArbSepolia,
+        ],
+        providers: [],
         auth: {
             strategies: [
                 {
@@ -70,7 +89,14 @@ export default initErpcConfig({
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "nexus-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [upstreams.alchemy, upstreams.drpc, upstreams.pimlico],
+        upstreams: [
+            upstreams.alchemy,
+            upstreams.drpc,
+            upstreams.pimlico,
+            upstreams.dwelirArb,
+            upstreams.dwelirArbSepolia,
+        ],
+        providers: [],
         auth: {
             strategies: [
                 {

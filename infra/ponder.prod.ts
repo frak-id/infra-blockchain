@@ -2,6 +2,7 @@ import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
 import { database, sstCluster, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
+import { erpcService } from "./erpc.ts";
 import { getPonderEntrypoint, ponderEnv } from "./utils.ts";
 
 // Get the image we will deploy
@@ -13,36 +14,43 @@ const image = await aws.ecr.getImage({
 /**
  * Build the ponder indexing service
  */
-sstCluster.addService("PonderProdIndexer", {
-    // Disable scaling on prod reader
-    scaling: {
-        cpuUtilization: false,
-        memoryUtilization: false,
-    },
-    // hardware config
-    cpu: "0.25 vCPU",
-    memory: "0.5 GB",
-    storage: "20 GB",
-    architecture: "arm64",
-    // Image to be used
-    image: image.imageUri,
-    entrypoint: getPonderEntrypoint("indexer"),
-    // Link it to the database
-    link: [database],
-    // Env
-    ...ponderEnv,
-    // Logging options
-    logging: {
-        retention: "3 days",
-    },
-    transform: {
-        service: {
-            // Disable rollup update for the indexer
-            deploymentMinimumHealthyPercent: 0,
-            deploymentMaximumPercent: 100,
+const indexerService = sstCluster.addService(
+    "PonderProdIndexer",
+    {
+        // Disable scaling on prod reader
+        scaling: {
+            cpuUtilization: false,
+            memoryUtilization: false,
+        },
+        // hardware config
+        cpu: "0.25 vCPU",
+        memory: "0.5 GB",
+        storage: "20 GB",
+        architecture: "arm64",
+        // Image to be used
+        image: image.imageUri,
+        entrypoint: getPonderEntrypoint("indexer"),
+        // Link it to the database
+        link: [database],
+        // Env
+        ...ponderEnv,
+        // Logging options
+        logging: {
+            retention: "3 days",
+        },
+        transform: {
+            service: {
+                // Disable rollup update for the indexer
+                deploymentMinimumHealthyPercent: 0,
+                deploymentMaximumPercent: 100,
+            },
         },
     },
-});
+    {
+        // Make sure the indexer depends on the database + erpc
+        dependsOn: [erpcService],
+    }
+);
 
 // Create the service targets
 const ponderServiceTargets = new ServiceTargets("PonderProdServiceDomain", {
@@ -65,36 +73,43 @@ const ponderServiceTargets = new ServiceTargets("PonderProdServiceDomain", {
 /**
  * Build the ponder indexing service
  */
-sstCluster.addService("PonderProdReader", {
-    // hardware config
-    cpu: "0.25 vCPU",
-    memory: "0.5 GB",
-    storage: "20 GB",
-    architecture: "arm64",
-    // Image to be used
-    image: image.imageUri,
-    entrypoint: getPonderEntrypoint("reader"),
-    // Link it to the database
-    link: [database],
-    // Env
-    ...ponderEnv,
-    // Logging options
-    logging: {
-        retention: "3 days",
-    },
-    // Link the service to the target groups we previously build
-    transform: {
-        service: {
-            loadBalancers: all(ponderServiceTargets.targetGroups).apply(
-                (target) =>
-                    Object.values(target).map((target) => ({
-                        targetGroupArn: target.arn,
-                        containerName: "PonderProdReader",
-                        containerPort: target.port.apply(
-                            (port) => port as number
-                        ),
-                    }))
-            ),
+sstCluster.addService(
+    "PonderProdReader",
+    {
+        // hardware config
+        cpu: "0.25 vCPU",
+        memory: "0.5 GB",
+        storage: "20 GB",
+        architecture: "arm64",
+        // Image to be used
+        image: image.imageUri,
+        entrypoint: getPonderEntrypoint("reader"),
+        // Link it to the database
+        link: [database],
+        // Env
+        ...ponderEnv,
+        // Logging options
+        logging: {
+            retention: "3 days",
+        },
+        // Link the service to the target groups we previously build
+        transform: {
+            service: {
+                loadBalancers: all(ponderServiceTargets.targetGroups).apply(
+                    (target) =>
+                        Object.values(target).map((target) => ({
+                            targetGroupArn: target.arn,
+                            containerName: "PonderProdReader",
+                            containerPort: target.port.apply(
+                                (port) => port as number
+                            ),
+                        }))
+                ),
+            },
         },
     },
-});
+    {
+        // Make sure the reader depends on the indexer
+        dependsOn: [indexerService],
+    }
+);
