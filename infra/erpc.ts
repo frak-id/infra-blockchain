@@ -20,7 +20,7 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
     ports: [
         { listen: "80/http", forward: "8080/http" },
         { listen: "443/https", forward: "8080/http" },
-        { listen: "6060/http", forward: "6060/http" },
+        // { listen: "6060/http", forward: "6060/http" },
     ],
     health: {
         path: "/healthcheck",
