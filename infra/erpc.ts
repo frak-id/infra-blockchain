@@ -20,6 +20,7 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
     ports: [
         { listen: "80/http", forward: "8080/http" },
         { listen: "443/https", forward: "8080/http" },
+        { listen: "6060/http", forward: "6060/http" },
     ],
     health: {
         path: "/healthcheck",
@@ -34,10 +35,10 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
 /**
  * Add the erpc service to our master cluster
  */
-sstCluster.addService("Erpc", {
+export const erpcService = sstCluster.addService("Erpc", {
     // hardware config
-    cpu: "0.25 vCPU",
-    memory: "0.5 GB",
+    cpu: "1 vCPU",
+    memory: "1 GB",
     storage: "20 GB",
     architecture: "arm64",
     // Image to be used
@@ -82,6 +83,8 @@ sstCluster.addService("Erpc", {
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PIMLICO_API_KEY/value",
         DRPC_API_KEY:
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/DRPC_API_KEY/value",
+        DWELIR_API_KEY:
+            "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/DWELIR_API_KEY/value",
         // Endpoints secrets,
         PONDER_RPC_SECRET:
             "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PONDER_RPC_SECRET/value",
@@ -105,6 +108,8 @@ sstCluster.addService("Erpc", {
                         ),
                     }))
             ),
+            // Ensure erpc reach a steady state before continuing the deployment process
+            waitForSteadyState: true,
         },
     },
 });

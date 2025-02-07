@@ -16,14 +16,20 @@
     "npm-check-updates": "^17.1.14",
     "@biomejs/biome": "1.9.4",
     "@pulumi/aws": "^6.67.0",
-    "@pulumi/pulumi": "^3.147.0",
+    "@pulumi/pulumi": "^3.148.0",
     "@types/aws-lambda": "8.10.147",
-    "@types/node": "^22.10.10",
-    "sst": "3.6.16",
+    "@types/node": "^22.13.1",
+    "sst": "3.7.15",
     "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.14"
   },
-  "workspaces": ["packages/*", "tools/"]
+  "workspaces": ["packages/*", "tools/"],
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "@erpc-cloud/cli",
+    "esbuild",
+    "protobufjs"
+  ]
 }

@@ -2,24 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+
+/// <reference path="../../sst-env.d.ts" />
+
 import "sst";
-declare module "sst" {
-    export interface Resource {
-        MasterVpc: {
-            bastion: string;
-            type: "sst.aws.Vpc";
-        };
-        PonderDevIndexer: {
-            service: string;
-            type: "sst.aws.Service";
-        };
-        blockchain: {
-            database: string;
-            host: string;
-            password: string;
-            port: number;
-            type: "sst.aws.Postgres";
-            username: string;
-        };
-    }
-}
