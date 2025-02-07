@@ -32,7 +32,13 @@ export default initErpcConfig({
         maxTimeout: "60s",
         listenV6: false,
     },
-    metrics: { enabled: false },
+    metrics: { 
+        enabled: true,
+        listenV4: true,
+        hostV4: "0.0.0.0",
+        port: 6060,
+        listenV6: false,
+     },
 })
     .addRateLimiters({
         alchemy: alchemyRateRules,

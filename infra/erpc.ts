@@ -20,6 +20,7 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
     ports: [
         { listen: "80/http", forward: "8080/http" },
         { listen: "443/https", forward: "8080/http" },
+        { listen: "6060/http", forward: "6060/http" },
     ],
     health: {
         path: "/healthcheck",
@@ -36,8 +37,8 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
  */
 export const erpcService = sstCluster.addService("Erpc", {
     // hardware config
-    cpu: "0.25 vCPU",
-    memory: "0.5 GB",
+    cpu: "1 vCPU",
+    memory: "1 GB",
     storage: "20 GB",
     architecture: "arm64",
     // Image to be used
