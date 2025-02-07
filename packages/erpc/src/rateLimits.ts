@@ -32,16 +32,16 @@ export const envioRateRules: RuleExport = [
 ];
 
 export const alchemyRateRules: RuleExport = [
-    genericRateLimitsRules(100),
+    genericRateLimitsRules(50),
     {
         method: "eth_getLogs",
-        maxCount: 20,
+        maxCount: 10,
         period: "1s",
         waitTime: "10s",
     },
     {
         method: "eth_getBlockByNumber",
-        maxCount: 30,
+        maxCount: 15,
         period: "1s",
         waitTime: "10s",
     },
