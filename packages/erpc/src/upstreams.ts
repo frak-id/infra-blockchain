@@ -96,7 +96,7 @@ export const dwelirArbUpstream = {
     type: "evm",
     vendorName: "dwelir",
     // Budget for rate limiting
-    rateLimitBudget: "drpc",
+    rateLimitBudget: "dwelir",
     // Only allow chainId, getBlockBy and getLogs
     ignoreMethods: ["*"],
     allowMethods: drpcMethods,
@@ -107,7 +107,7 @@ export const dwelirArbSepoliaUpstream = {
     type: "evm",
     vendorName: "dwelir",
     // Budget for rate limiting
-    rateLimitBudget: "drpc",
+    rateLimitBudget: "dwelir",
     // Only allow chainId, getBlockBy and getLogs
     ignoreMethods: ["*"],
     allowMethods: drpcMethods,

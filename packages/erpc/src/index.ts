@@ -23,7 +23,7 @@ import {
  * Build our top level erpc config
  */
 export default initErpcConfig({
-    logLevel: (process.env.ERPC_LOG_LEVEL ?? "info") as LogLevel,
+    logLevel: (process.env.ERPC_LOG_LEVEL ?? "debug") as LogLevel,
     database: {
         evmJsonRpcCache: cacheConfig,
     },
@@ -67,6 +67,7 @@ export default initErpcConfig({
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
         ],
+        providers: [],
         auth: {
             strategies: [
                 {
@@ -89,6 +90,7 @@ export default initErpcConfig({
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
         ],
+        providers: [],
         auth: {
             strategies: [
                 {
