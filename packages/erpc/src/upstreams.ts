@@ -112,3 +112,25 @@ export const dwelirArbSepoliaUpstream = {
     ignoreMethods: ["*"],
     allowMethods: drpcMethods,
 } as const satisfies UpstreamConfig;
+
+export const blockPiArbUpstream = {
+    endpoint: `https://arbitrum.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB}`,
+    type: "evm",
+    vendorName: "blockPi",
+    // Budget for rate limiting
+    rateLimitBudget: "blockPi",
+    // Only allow chainId, getBlockBy and getLogs
+    ignoreMethods: ["*"],
+    allowMethods: drpcMethods,
+} as const satisfies UpstreamConfig;
+
+export const blockPiArbSepoliaUpstream = {
+    endpoint: `https://arbitrum-sepolia.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB_SEPOLIA}`,
+    type: "evm",
+    vendorName: "blockPi",
+    // Budget for rate limiting
+    rateLimitBudget: "blockPi",
+    // Only allow chainId, getBlockBy and getLogs
+    ignoreMethods: ["*"],
+    allowMethods: drpcMethods,
+} as const satisfies UpstreamConfig;

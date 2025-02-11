@@ -11,7 +11,8 @@ import {
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
-    alchemyUpstream,
+    blockPiArbSepoliaUpstream,
+    blockPiArbUpstream,
     drpcUpstream,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
@@ -56,22 +57,28 @@ export default initErpcConfig({
     // Add upstreams to the config
     .decorate("upstreams", {
         envio: envioUpstream,
-        alchemy: alchemyUpstream,
+        // alchemy: alchemyUpstream,
         pimlico: pimlicoUpstream,
         drpc: drpcUpstream,
+        // Dwellir
         dwelirArb: dwelirArbUpstream,
         dwelirArbSepolia: dwelirArbSepoliaUpstream,
+        // BlockPi
+        blockPiArb: blockPiArbUpstream,
+        blockPiArbSepolia: blockPiArbSepoliaUpstream,
     })
     // Add our ponder prod project
     .addProject(({ store: { upstreams, networks } }) => ({
         id: "ponder-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
         upstreams: [
-            upstreams.alchemy,
+            // upstreams.alchemy,
             upstreams.envio,
             upstreams.drpc,
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
+            upstreams.blockPiArb,
+            upstreams.blockPiArbSepolia,
         ],
         providers: [],
         auth: {
@@ -90,11 +97,13 @@ export default initErpcConfig({
         id: "nexus-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
         upstreams: [
-            upstreams.alchemy,
+            // upstreams.alchemy,
             upstreams.drpc,
             upstreams.pimlico,
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
+            upstreams.blockPiArb,
+            upstreams.blockPiArbSepolia,
         ],
         providers: [],
         auth: {

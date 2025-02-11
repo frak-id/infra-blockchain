@@ -19,13 +19,13 @@ export const envioRateRules: RuleExport = [
     genericRateLimitsRules(600),
     {
         method: "eth_getLogs",
-        maxCount: 300,
+        maxCount: 100,
         period: "1s",
         waitTime: "5s",
     },
     {
         method: "eth_getBlockByNumber",
-        maxCount: 300,
+        maxCount: 100,
         period: "1s",
         waitTime: "5s",
     },
@@ -49,7 +49,7 @@ export const alchemyRateRules: RuleExport = [
 
 export const pimlicoRateRules: RuleExport = [genericRateLimitsRules(400)];
 
-export const blockPiRateRules: RuleExport = [genericRateLimitsRules(100)];
+export const blockPiRateRules: RuleExport = [genericRateLimitsRules(30)];
 
 export const drpcRateRules: RuleExport = [genericRateLimitsRules(100)];
 
