@@ -1,39 +1,42 @@
 import { db } from "ponder:api";
 import { tokenTable } from "ponder:schema";
+import { Elysia, t } from "elysia";
 import { eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
-import app from ".";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unreachable code error
-BigInt.prototype.toJSON = function (): string {
-    return this.toString();
-};
+export const tokenRoutes = new Elysia()
+    /**
+     * Get a token's information by its address
+     */
+    .get(
+        "/tokens/:address",
+        async ({ params, error }) => {
+            // Extract token address
+            const address = params.address as Address;
+            if (!isAddress(address)) {
+                return error(400, "Invalid token address");
+            }
 
-/**
- * Get a tokens information by its address
- */
-app.get("/tokens/:address", async ({ req, json }) => {
-    // Extract token address
-    const address = req.param("address") as Address;
-    if (!isAddress(address)) {
-        return json("Invalid token address address", 400);
-    }
+            // Perform the sql query
+            const rewards = await db
+                .select({
+                    address: tokenTable.id,
+                    name: tokenTable.name,
+                    symbol: tokenTable.symbol,
+                    decimals: tokenTable.decimals,
+                })
+                .from(tokenTable)
+                .where(eq(tokenTable.id, address));
 
-    // Perform the sql query
-    const rewards = await db
-        .select({
-            address: tokenTable.id,
-            name: tokenTable.name,
-            symbol: tokenTable.symbol,
-            decimals: tokenTable.decimals,
-        })
-        .from(tokenTable)
-        .where(eq(tokenTable.id, address));
-
-    // Return the result as json
-    return json(rewards);
-});
+            // Return the result as json
+            return rewards;
+        },
+        {
+            params: t.Object({
+                address: t.String(),
+            }),
+        }
+    );
 
 /**
  * Get all the tokens information

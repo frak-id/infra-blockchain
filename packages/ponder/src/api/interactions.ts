@@ -4,51 +4,57 @@ import {
     productInteractionContractTable,
     productTable,
 } from "ponder:schema";
+import { Elysia, t } from "elysia";
 import { desc, eq } from "ponder";
 import { type Address, isAddress } from "viem";
-import app from ".";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unreachable code error
-BigInt.prototype.toJSON = function (): string {
-    return this.toString();
-};
+export const interactionRoutes = new Elysia()
+    /**
+     * Get all the interactions for a wallet
+     */
+    .get(
+        "/interactions/:wallet",
+        async ({ params, error }) => {
+            // Extract wallet
+            const wallet = params.wallet as Address;
+            if (!isAddress(wallet)) {
+                return error(400, "Invalid wallet address");
+            }
 
-/**
- * Get all the interactions for a wallet
- */
-app.get("/interactions/:wallet", async ({ req, json }) => {
-    // Extract wallet
-    const wallet = req.param("wallet") as Address;
-    if (!isAddress(wallet)) {
-        return json("Invalid wallet address", 400);
-    }
+            // Perform the sql query
+            const interactions = await db
+                .select({
+                    data: interactionEventTable.data,
+                    type: interactionEventTable.type,
+                    timestamp: interactionEventTable.timestamp,
+                    productId: productInteractionContractTable.productId,
+                    productName: productTable.name,
+                })
+                .from(interactionEventTable)
+                .innerJoin(
+                    productInteractionContractTable,
+                    eq(
+                        productInteractionContractTable.id,
+                        interactionEventTable.interactionId
+                    )
+                )
+                .innerJoin(
+                    productTable,
+                    eq(
+                        productTable.id,
+                        productInteractionContractTable.productId
+                    )
+                )
+                .where(eq(interactionEventTable.user, wallet))
+                .limit(100)
+                .orderBy(desc(interactionEventTable.timestamp));
 
-    // Perform the sql query
-    const interactions = await db
-        .select({
-            data: interactionEventTable.data,
-            type: interactionEventTable.type,
-            timestamp: interactionEventTable.timestamp,
-            productId: productInteractionContractTable.productId,
-            productName: productTable.name,
-        })
-        .from(interactionEventTable)
-        .innerJoin(
-            productInteractionContractTable,
-            eq(
-                productInteractionContractTable.id,
-                interactionEventTable.interactionId
-            )
-        )
-        .innerJoin(
-            productTable,
-            eq(productTable.id, productInteractionContractTable.productId)
-        )
-        .where(eq(interactionEventTable.user, wallet))
-        .limit(100)
-        .orderBy(desc(interactionEventTable.timestamp));
-
-    // Return the result as json
-    return json(interactions);
-});
+            // Return the result as json
+            return interactions;
+        },
+        {
+            params: t.Object({
+                wallet: t.String(),
+            }),
+        }
+    );
