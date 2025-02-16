@@ -1,7 +1,8 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import { bankingContractTable, campaignTable } from "ponder:schema";
 import { eq } from "ponder";
 import { type Address, type Hex, isAddress, isHex } from "viem";
+import app from ".";
 import { getTokens } from "./tokens";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -13,24 +14,22 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get generic info about a campaign
  */
-ponder.get("/campaign", async (ctx) => {
+app.get("/campaign", async ({ req, json }) => {
     // Extract wallet
-    const campaignAddress = ctx.req.query("campaignAddress") as
-        | Address
-        | undefined;
-    const productId = ctx.req.query("productId") as Hex | undefined;
+    const campaignAddress = req.query("campaignAddress") as Address | undefined;
+    const productId = req.query("productId") as Hex | undefined;
     if (
         (campaignAddress && !isAddress(campaignAddress)) ||
         (productId && !isHex(productId))
     ) {
-        return ctx.text("Invalid campaign or product", 400);
+        return json("Invalid campaign or product", 400);
     }
     if (!campaignAddress && !productId) {
-        return ctx.text("Missing campaign or product params", 400);
+        return json("Missing campaign or product params", 400);
     }
 
     // Perform the sql query
-    const campaigns = await ctx.db
+    const campaigns = await db
         .select({
             address: campaignTable.id,
             type: campaignTable.type,
@@ -56,11 +55,10 @@ ponder.get("/campaign", async (ctx) => {
     // Get all the tokens for the campaign
     const tokens = await getTokens({
         addresses: campaigns.map((r) => r.token),
-        ctx,
     });
 
     // Return the result as json
-    return ctx.json({
+    return json({
         campaigns,
         tokens,
     });

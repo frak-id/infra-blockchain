@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     affiliationCampaignStatsTable,
     campaignTable,
@@ -9,6 +9,7 @@ import {
 } from "ponder:schema";
 import { countDistinct, eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
+import app from ".";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error
@@ -19,15 +20,15 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get all of the product where a user is either manager or owner
  */
-ponder.get("/admin/:wallet/products", async (ctx) => {
+app.get("/admin/:wallet/products", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const products = await ctx.db
+    const products = await db
         .select({
             id: productAdministratorTable.productId,
             isOwner: productAdministratorTable.isOwner,
@@ -44,21 +45,21 @@ ponder.get("/admin/:wallet/products", async (ctx) => {
         .where(eq(productAdministratorTable.user, wallet));
 
     // Return the result as json
-    return ctx.json(products);
+    return json(products);
 });
 
 /**
  * Get all the campaign for a wallet, where the wallet is the manager
  */
-ponder.get("/admin/:wallet/campaigns", async (ctx) => {
+app.get("/admin/:wallet/campaigns", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const campaigns = await ctx.db
+    const campaigns = await db
         .select({
             productId: productAdministratorTable.productId,
             isOwner: productAdministratorTable.isOwner,
@@ -79,19 +80,19 @@ ponder.get("/admin/:wallet/campaigns", async (ctx) => {
         .where(eq(productAdministratorTable.user, wallet));
 
     // Return the result as json
-    return ctx.json(campaigns);
+    return json(campaigns);
 });
 
 // Get all the campaign stats for a wallet
-ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
+app.get("/admin/:wallet/campaignsStats", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const campaignsStats = await ctx.db
+    const campaignsStats = await db
         .select({
             productId: productAdministratorTable.productId,
             isOwner: productAdministratorTable.isOwner,
@@ -128,7 +129,7 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
 
     // Get the unique wallet on this product
     if (campaignsStats.length === 0) {
-        return ctx.json({ stats: [] });
+        return json({ stats: [] });
     }
 
     // Get all the product ids for this admin
@@ -136,7 +137,7 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
     const uniqueProductIds = [...new Set(campaignProductIds)];
 
     // Get the total number of unique users per product
-    const totalPerProducts = await ctx.db
+    const totalPerProducts = await db
         .select({
             productId: productInteractionContractTable.productId,
             wallets: countDistinct(interactionEventTable.user),
@@ -155,7 +156,7 @@ ponder.get("/admin/:wallet/campaignsStats", async (ctx) => {
         .groupBy(productInteractionContractTable.productId);
 
     // Return the result as json
-    return ctx.json({
+    return json({
         stats: campaignsStats,
         users: totalPerProducts,
     });

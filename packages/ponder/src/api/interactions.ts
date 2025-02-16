@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     interactionEventTable,
     productInteractionContractTable,
@@ -6,6 +6,7 @@ import {
 } from "ponder:schema";
 import { desc, eq } from "ponder";
 import { type Address, isAddress } from "viem";
+import app from ".";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error
@@ -16,15 +17,15 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get all the interactions for a wallet
  */
-ponder.get("/interactions/:wallet", async (ctx) => {
+app.get("/interactions/:wallet", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const interactions = await ctx.db
+    const interactions = await db
         .select({
             data: interactionEventTable.data,
             type: interactionEventTable.type,
@@ -49,5 +50,5 @@ ponder.get("/interactions/:wallet", async (ctx) => {
         .orderBy(desc(interactionEventTable.timestamp));
 
     // Return the result as json
-    return ctx.json(interactions);
+    return json(interactions);
 });

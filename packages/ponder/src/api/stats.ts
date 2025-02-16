@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     affiliationCampaignStatsTable,
     bankingContractTable,
@@ -10,25 +10,26 @@ import {
 } from "ponder:schema";
 import { count, countDistinct, eq, gte, inArray, max } from "ponder";
 import { type Address, type Hex, isAddressEqual } from "viem";
+import app from ".";
 
 /**
  * Get the overall system stats
  */
-ponder.get("/stats/overall", async (ctx) => {
+app.get("/stats/overall", async ({ json }) => {
     // Get the total nbr of user who performed an interaction
-    const totalInteractions = await ctx.db
+    const totalInteractions = await db
         .select({
             count: countDistinct(interactionEventTable.user),
         })
         .from(interactionEventTable);
-    const totalPerType = await ctx.db
+    const totalPerType = await db
         .select({
             name: interactionEventTable.type,
             count: countDistinct(interactionEventTable.user),
         })
         .from(interactionEventTable)
         .groupBy(interactionEventTable.type);
-    const totalPerProduct = await ctx.db
+    const totalPerProduct = await db
         .select({
             name: productTable.name,
             count: countDistinct(interactionEventTable.user),
@@ -52,13 +53,13 @@ ponder.get("/stats/overall", async (ctx) => {
     const dauMinTime = BigInt(Date.now() - 30 * 60 * 60 * 1000) / 1000n;
 
     // Get the WAU and DAU
-    const wauInteractions = await ctx.db
+    const wauInteractions = await db
         .select({
             count: countDistinct(interactionEventTable.user),
         })
         .from(interactionEventTable)
         .where(gte(interactionEventTable.timestamp, wauMinTime));
-    const dauInteractions = await ctx.db
+    const dauInteractions = await db
         .select({
             count: countDistinct(interactionEventTable.user),
         })
@@ -66,11 +67,11 @@ ponder.get("/stats/overall", async (ctx) => {
         .where(gte(interactionEventTable.timestamp, dauMinTime));
 
     // Total number of product registered
-    const totalProducts = await ctx.db
+    const totalProducts = await db
         .select({ count: count() })
         .from(productTable);
 
-    return ctx.json({
+    return json({
         interactions: {
             total: totalInteractions[0]?.count,
             wau: wauInteractions[0]?.count,
@@ -85,9 +86,9 @@ ponder.get("/stats/overall", async (ctx) => {
 /**
  * Get all the wallets related stats
  */
-ponder.get("/stats/wallets", async (ctx) => {
+app.get("/stats/wallets", async ({ json }) => {
     // Total wallets with interactions
-    const allWallets = await ctx.db
+    const allWallets = await db
         .select({
             wallet: interactionEventTable.user,
             interactionsContract: interactionEventTable.interactionId,
@@ -109,7 +110,7 @@ ponder.get("/stats/wallets", async (ctx) => {
     ] as Address[];
 
     // Then find the list of products on which each wallet interacted
-    const products = await ctx.db
+    const products = await db
         .select({
             id: productInteractionContractTable.id,
             productId: productInteractionContractTable.productId,
@@ -128,7 +129,7 @@ ponder.get("/stats/wallets", async (ctx) => {
         );
 
     // Then find the rewards for each wallets
-    const rewards = await ctx.db
+    const rewards = await db
         .select({
             wallet: rewardTable.user,
             totalReceived: rewardTable.totalReceived,
@@ -165,14 +166,14 @@ ponder.get("/stats/wallets", async (ctx) => {
         };
     });
 
-    return ctx.json(output);
+    return json(output);
 });
 
 /**
  * Get some campaign related stats
  */
-ponder.get("/stats/campaigns", async (ctx) => {
-    const afilliationCampaigns = await ctx.db
+app.get("/stats/campaigns", async ({ json }) => {
+    const afilliationCampaigns = await db
         .select({
             id: campaignTable.id,
             name: campaignTable.name,
@@ -203,5 +204,5 @@ ponder.get("/stats/campaigns", async (ctx) => {
             eq(campaignTable.bankingContractId, bankingContractTable.id)
         );
 
-    return ctx.json(afilliationCampaigns);
+    return json(afilliationCampaigns);
 });

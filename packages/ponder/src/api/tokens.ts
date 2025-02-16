@@ -1,7 +1,8 @@
-import { type ApiContext, ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import { tokenTable } from "ponder:schema";
 import { eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
+import app from ".";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error
@@ -12,15 +13,15 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get a tokens information by its address
  */
-ponder.get("/tokens/:address", async (ctx) => {
+app.get("/tokens/:address", async ({ req, json }) => {
     // Extract token address
-    const address = ctx.req.param("address") as Address;
+    const address = req.param("address") as Address;
     if (!isAddress(address)) {
-        return ctx.text("Invalid token address address", 400);
+        return json("Invalid token address address", 400);
     }
 
     // Perform the sql query
-    const rewards = await ctx.db
+    const rewards = await db
         .select({
             address: tokenTable.id,
             name: tokenTable.name,
@@ -31,7 +32,7 @@ ponder.get("/tokens/:address", async (ctx) => {
         .where(eq(tokenTable.id, address));
 
     // Return the result as json
-    return ctx.json(rewards);
+    return json(rewards);
 });
 
 /**
@@ -39,8 +40,7 @@ ponder.get("/tokens/:address", async (ctx) => {
  */
 export async function getTokens({
     addresses,
-    ctx,
-}: { addresses: readonly Address[]; ctx: ApiContext }) {
+}: { addresses: readonly Address[] }) {
     // If no addresses, return an empty array
     if (!addresses || addresses.length === 0) {
         return [];
@@ -50,7 +50,7 @@ export async function getTokens({
     const addressSet = new Set(addresses);
 
     // Find all the tokens
-    return ctx.db
+    return db
         .select({
             address: tokenTable.id,
             name: tokenTable.name,

@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     bankingContractTable,
     productTable,
@@ -8,6 +8,7 @@ import {
 } from "ponder:schema";
 import { and, desc, eq, not } from "ponder";
 import { type Address, isAddress } from "viem";
+import app from ".";
 import { getTokens } from "./tokens";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -19,15 +20,15 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get all the current rewards for a wallet
  */
-ponder.get("/rewards/:wallet", async (ctx) => {
+app.get("/rewards/:wallet", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const rewards = await ctx.db
+    const rewards = await db
         .select({
             amount: rewardTable.pendingAmount,
             address: rewardTable.contractId,
@@ -49,11 +50,10 @@ ponder.get("/rewards/:wallet", async (ctx) => {
     // Get all the tokens for the rewards
     const tokens = await getTokens({
         addresses: rewards.map((r) => r.token),
-        ctx,
     });
 
     // Return the result as json
-    return ctx.json({
+    return json({
         rewards,
         tokens,
     });
@@ -62,15 +62,15 @@ ponder.get("/rewards/:wallet", async (ctx) => {
 /**
  * Get all the rewards history for a wallet
  */
-ponder.get("/rewards/:wallet/history", async (ctx) => {
+app.get("/rewards/:wallet/history", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("wallet") as Address;
+    const wallet = req.param("wallet") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid wallet address", 400);
+        return json("Invalid wallet address", 400);
     }
 
     // Perform the sql query
-    const rewardAddedPromise = ctx.db
+    const rewardAddedPromise = db
         .select({
             amount: rewardAddedEventTable.amount,
             txHash: rewardAddedEventTable.txHash,
@@ -93,7 +93,7 @@ ponder.get("/rewards/:wallet/history", async (ctx) => {
         .orderBy(desc(rewardAddedEventTable.timestamp));
 
     // Perform the sql query
-    const rewardClaimedPromise = ctx.db
+    const rewardClaimedPromise = db
         .select({
             amount: rewardClaimedEventTable.amount,
             txHash: rewardClaimedEventTable.txHash,
@@ -123,11 +123,10 @@ ponder.get("/rewards/:wallet/history", async (ctx) => {
     // Get all the tokens for the rewards events
     const tokens = await getTokens({
         addresses: [...rewardAdded, ...rewardClaimed].map((r) => r.token),
-        ctx,
     });
 
     // Return the result as json
-    return ctx.json({
+    return json({
         added: rewardAdded,
         claimed: rewardClaimed,
         tokens,

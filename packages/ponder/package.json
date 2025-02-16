@@ -21,14 +21,14 @@
     "docker:run": "docker run -P ponder-dev"
   },
   "dependencies": {
-    "drizzle-orm": "0.36.4",
-    "hono": "4.6.18",
-    "ponder": "^0.8.32",
-    "viem": "^2.22.22"
+    "drizzle-orm": "0.39.3",
+    "hono": "4.7.1",
+    "ponder": "^0.9.14",
+    "viem": "^2.23.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.4",
     "typescript": "^5.7.3"
   },
   "engines": {

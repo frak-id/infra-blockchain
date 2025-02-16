@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     affiliationCampaignStatsTable,
     bankingContractTable,
@@ -10,6 +10,7 @@ import {
 } from "ponder:schema";
 import { eq, inArray } from "ponder";
 import { type Hex, isHex, keccak256, toHex } from "viem";
+import app from ".";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error
@@ -20,15 +21,15 @@ BigInt.prototype.toJSON = function (): string {
 /**
  * Get all the product administrators
  */
-ponder.get("/products/:id/administrators", async (ctx) => {
+app.get("/products/:id/administrators", async ({ req, json }) => {
     // Extract the id
-    const id = ctx.req.param("id") as Hex;
+    const id = req.param("id") as Hex;
     if (!isHex(id)) {
-        return ctx.text("Invalid product id", 400);
+        return json("Invalid product id", 400);
     }
 
     // Perform the sql query
-    const administrators = await ctx.db
+    const administrators = await db
         .select({
             wallet: productAdministratorTable.user,
             isOwner: productAdministratorTable.isOwner,
@@ -39,21 +40,21 @@ ponder.get("/products/:id/administrators", async (ctx) => {
         .where(eq(productAdministratorTable.productId, BigInt(id)));
 
     // Return the result as json
-    return ctx.json(administrators);
+    return json(administrators);
 });
 
 /**
  * Get all the product banks
  */
-ponder.get("/products/:id/banks", async (ctx) => {
+app.get("/products/:id/banks", async ({ req, json }) => {
     // Extract the id
-    const id = ctx.req.param("id") as Hex;
+    const id = req.param("id") as Hex;
     if (!isHex(id)) {
-        return ctx.text("Invalid product id", 400);
+        return json("Invalid product id", 400);
     }
 
     // Perform the sql query
-    const banks = await ctx.db
+    const banks = await db
         .select({
             address: bankingContractTable.id,
             totalDistributed: bankingContractTable.totalDistributed,
@@ -71,13 +72,13 @@ ponder.get("/products/:id/banks", async (ctx) => {
         .where(eq(bankingContractTable.productId, BigInt(id)));
 
     // Return the result as json
-    return ctx.json(banks);
+    return json(banks);
 });
 
 /**
  * Get the overall product info
  */
-ponder.get("/products/info", async ({ req, db, json }) => {
+app.get("/products/info", async ({ req, json }) => {
     // Extract the product id
     const domain = req.query("domain");
     let productId = req.query("id") as Hex | undefined;

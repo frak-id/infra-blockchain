@@ -1,4 +1,4 @@
-import { ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import {
     interactionEventTable,
     productAdministratorTable,
@@ -22,6 +22,7 @@ import {
     sum,
 } from "ponder";
 import { type Address, type Hex, isAddress } from "viem";
+import app from ".";
 
 /**
  * Params for the members fetching
@@ -65,19 +66,19 @@ type GetMembersParams = {
  * Get all the members for a product admin
  *  todo: The POST request here is mapped to a PUT hono handler --'
  */
-ponder.post("/members/:productAdmin", async (ctx) => {
+app.post("/members/:productAdmin", async ({ req, json }) => {
     // Extract wallet
-    const wallet = ctx.req.param("productAdmin") as Address;
+    const wallet = req.param("productAdmin") as Address;
     if (!isAddress(wallet)) {
-        return ctx.text("Invalid productAdmin address", 400);
+        return json("Invalid productAdmin address", 400);
     }
 
     // Get the request params
     const { filter, sort, limit, offset, noData, onlyAddress } =
-        await ctx.req.json<GetMembersParams>();
+        await req.json<GetMembersParams>();
 
     // Perform the sql query
-    const productIds = await ctx.db
+    const productIds = await db
         .select({
             id: productAdministratorTable.productId,
             name: productTable.name,
@@ -91,7 +92,7 @@ ponder.post("/members/:productAdmin", async (ctx) => {
 
     // If no product found, early exit
     if (!productIds.length) {
-        return ctx.json({ totalResult: 0, members: [], users: [] });
+        return json({ totalResult: 0, members: [], users: [] });
     }
 
     const { whereClauses, havingClauses } = getFilterClauses({
@@ -109,7 +110,7 @@ ponder.post("/members/:productAdmin", async (ctx) => {
     // Then get all the members for the given products id, we want the total interactions for each users who have interacted with the product
     // Relation is as follow: InteractionEvent (user, interactionId) -> ProductInteractionContract (productId)
     // We want to get the total interactions for each user
-    const membersQuery = ctx.db
+    const membersQuery = db
         .select({
             user: interactionEventTable.user,
             totalInteractions: count(interactionEventTable.id),
@@ -142,13 +143,13 @@ ponder.post("/members/:productAdmin", async (ctx) => {
 
     // Get the total results count
     const membersSubQuery = membersQuery.as("members");
-    const totalResult = await ctx.db
+    const totalResult = await db
         .select({ count: count() })
         .from(membersSubQuery);
 
     // If we don't want the data, we can return the total count
     if (noData) {
-        return ctx.json({ totalResult: totalResult?.[0]?.count });
+        return json({ totalResult: totalResult?.[0]?.count });
     }
 
     // Apply the limit and offset
@@ -169,7 +170,7 @@ ponder.post("/members/:productAdmin", async (ctx) => {
         };
         const orderByField = sortFieldMap[sort.by as keyof typeof sortFieldMap];
         if (!orderByField) {
-            return ctx.text("Invalid sort field", 400);
+            return json("Invalid sort field", 400);
         }
         membersQuery.orderBy(
             sort.order === "asc" ? asc(orderByField) : desc(orderByField)
@@ -178,10 +179,10 @@ ponder.post("/members/:productAdmin", async (ctx) => {
 
     // If we only want the address, we early exit now
     if (onlyAddress) {
-        const members = await ctx.db
+        const members = await db
             .select({ user: membersSubQuery.user })
             .from(membersSubQuery);
-        return ctx.json({
+        return json({
             totalResult: totalResult?.[0]?.count,
             users: members.map((m) => m.user),
         });
@@ -197,7 +198,7 @@ ponder.post("/members/:productAdmin", async (ctx) => {
         return { ...member, productNames };
     });
 
-    return ctx.json({
+    return json({
         totalResult: totalResult?.[0]?.count,
         members: membersWithPName,
     });

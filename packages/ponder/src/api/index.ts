@@ -1,5 +1,8 @@
-import { ponder } from "ponder:registry";
+import { Hono } from "hono";
 
-ponder.get("/hello", async ({ text }) => {
-    return text("Hello!");
-});
+/**
+ * Create the hono app that wil lbe used to expose the ponder api
+ */
+const app = new Hono();
+
+export default app;
