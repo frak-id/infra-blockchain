@@ -6,7 +6,6 @@ import {
     productTable,
     rewardTable,
 } from "ponder:schema";
-import type { SQL } from "drizzle-orm";
 import {
     and,
     asc,
@@ -220,6 +219,7 @@ function getFilterClauses({ filter }: { filter: GetMembersParams["filter"] }) {
             )
         );
     }
+
     if (filter?.interactions) {
         const clause = buildRangeClause({
             field: count(interactionEventTable.id),
@@ -255,12 +255,23 @@ function getFilterClauses({ filter }: { filter: GetMembersParams["filter"] }) {
     return { whereClauses, havingClauses };
 }
 
-function buildRangeClause<TInnerField extends bigint | string | number | null>({
+/**
+ * The potential columns that can be used for the range clause
+ */
+type RangeClauseColumn =
+    | ReturnType<typeof count>
+    | ReturnType<typeof sum>
+    | ReturnType<typeof min<typeof interactionEventTable.timestamp>>;
+
+/**
+ * Build a range clause
+ */
+function buildRangeClause({
     field,
     min,
     max,
 }: {
-    field: SQL<TInnerField>;
+    field: RangeClauseColumn;
     min?: number | bigint;
     max?: number | bigint;
 }) {
