@@ -79,13 +79,14 @@ if ($dev) {
     new sst.x.DevCommand("ponder:start", {
         dev: {
             title: "[Ponder] Start",
-            command: "ponder --config config/config-dev.ts start",
+            command:
+                "ponder --config config/config-dev.ts --log-level info start",
             directory: "packages/ponder",
             autostart: false,
         },
         environment: {
             PONDER_DATABASE_URL: dbUrl,
-            DATABASE_SCHEMA: "ponder_dev_16_1_2025_local",
+            DATABASE_SCHEMA: "ponder_local",
             NO_API: "true",
         },
         link: [database],
