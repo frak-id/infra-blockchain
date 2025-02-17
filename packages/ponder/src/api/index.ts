@@ -9,21 +9,33 @@ import { rewardRoutes } from "./rewards";
 import { statsRoutes } from "./stats";
 
 /**
- * Build the elysia app
+ * Build our hono app
  */
-const elysiaApp = new Elysia()
-    .use(adminRoutes)
-    .use(campaignRoutes)
-    .use(interactionRoutes)
-    .use(productRoutes)
-    .use(rewardRoutes)
-    .use(membersRoutes)
-    .use(statsRoutes);
+const honoApp = new Hono();
+
+// Check if we have an api
+const hasApi = process.env.NO_API !== "true";
 
 /**
- * Export an hono app that expose the elysia app
+ * If we got an api, create the elysia app and mount it on the hono app
  */
-export default new Hono().mount("/", elysiaApp.fetch);
+if (hasApi) {
+    // Build the elysia app that will serve the api
+    const elysiaApp = new Elysia()
+        .use(adminRoutes)
+        .use(campaignRoutes)
+        .use(interactionRoutes)
+        .use(productRoutes)
+        .use(rewardRoutes)
+        .use(membersRoutes)
+        .use(statsRoutes);
+
+    // Mount the elysia app on the hono app
+    honoApp.mount("/", elysiaApp.fetch);
+}
+
+// Export the hono app
+export default honoApp;
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unreachable code error

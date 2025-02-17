@@ -31,7 +31,8 @@ const ponderServiceTargets = new ServiceTargets("PonderDevServiceDomain", {
 /**
  * Build the ponder indexing service
  */
-sstCluster.addService("PonderDevIndexer", {
+new sst.aws.Service("PonderDevIndexer", {
+    cluster: sstCluster,
     // Disable scaling on dev
     scaling: {
         cpuUtilization: false,

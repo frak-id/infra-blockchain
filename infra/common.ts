@@ -66,10 +66,27 @@ if ($dev) {
             title: "[Ponder] Serve",
             command: "ponder --config config/config-dev.ts serve",
             directory: "packages/ponder",
+            autostart: false,
         },
         environment: {
             PONDER_DATABASE_URL: dbUrl,
             DATABASE_SCHEMA: "ponder_dev_16_1_2025",
+        },
+        link: [database],
+    });
+
+    // Ponder serve command
+    new sst.x.DevCommand("ponder:start", {
+        dev: {
+            title: "[Ponder] Start",
+            command: "ponder --config config/config-dev.ts start",
+            directory: "packages/ponder",
+            autostart: false,
+        },
+        environment: {
+            PONDER_DATABASE_URL: dbUrl,
+            DATABASE_SCHEMA: "ponder_dev_16_1_2025_local",
+            NO_API: "true",
         },
         link: [database],
     });

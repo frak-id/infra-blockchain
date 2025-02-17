@@ -35,7 +35,8 @@ const erpcServiceTargets = new ServiceTargets("ErpcServiceDomain", {
 /**
  * Add the erpc service to our master cluster
  */
-export const erpcService = sstCluster.addService("Erpc", {
+export const erpcService = new sst.aws.Service("Erpc", {
+    cluster: sstCluster,
     // hardware config
     cpu: "0.5 vCPU",
     memory: "1 GB",
