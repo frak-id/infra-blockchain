@@ -4,12 +4,27 @@ import { Elysia, t } from "elysia";
 import { eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
 
-export const tokenRoutes = new Elysia()
+export const tokenRoutes = new Elysia({
+    prefix: "/tokens",
+})
+    /**
+     * Get all the known tokens
+     */
+    .get("/", async () =>
+        db
+            .select({
+                address: tokenTable.id,
+                name: tokenTable.name,
+                symbol: tokenTable.symbol,
+                decimals: tokenTable.decimals,
+            })
+            .from(tokenTable)
+    )
     /**
      * Get a token's information by its address
      */
     .get(
-        "/tokens/:address",
+        "/:address",
         async ({ params, error }) => {
             // Extract token address
             const address = params.address as Address;
@@ -18,7 +33,7 @@ export const tokenRoutes = new Elysia()
             }
 
             // Perform the sql query
-            const rewards = await db
+            return await db
                 .select({
                     address: tokenTable.id,
                     name: tokenTable.name,
@@ -27,9 +42,6 @@ export const tokenRoutes = new Elysia()
                 })
                 .from(tokenTable)
                 .where(eq(tokenTable.id, address));
-
-            // Return the result as json
-            return rewards;
         },
         {
             params: t.Object({

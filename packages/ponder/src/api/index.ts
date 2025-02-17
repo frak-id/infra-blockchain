@@ -7,6 +7,7 @@ import { membersRoutes } from "./members";
 import { productRoutes } from "./products";
 import { rewardRoutes } from "./rewards";
 import { statsRoutes } from "./stats";
+import { tokenRoutes } from "./tokens";
 
 /**
  * Build our hono app
@@ -28,7 +29,8 @@ if (hasApi) {
         .use(productRoutes)
         .use(rewardRoutes)
         .use(membersRoutes)
-        .use(statsRoutes);
+        .use(statsRoutes)
+        .use(tokenRoutes);
 
     // Mount the elysia app on the hono app
     honoApp.mount("/", elysiaApp.fetch);
