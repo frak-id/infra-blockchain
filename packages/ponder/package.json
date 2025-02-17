@@ -10,7 +10,7 @@
     "format:check": "biome check .",
     "lint": "biome lint .",
     "serve": "ponder --config config/config-local.ts serve",
-    "serve:prod": "ponder --config config/config-prod.ts serve",
+    "serve:prod": "ponder --config config/config-prod.ts serve --schema dev",
     "serve:dev": "ponder --config config/config-dev.ts serve",
     "start": "ponder --config config/config-local.ts start",
     "start:dev": "ponder --config config/config-dev.ts start --schema dev",
@@ -21,14 +21,14 @@
     "docker:run": "docker run -P ponder-dev"
   },
   "dependencies": {
-    "drizzle-orm": "0.36.4",
-    "hono": "4.6.18",
-    "ponder": "^0.8.32",
-    "viem": "^2.22.22"
+    "elysia": "^1.2.13",
+    "hono": "4.7.1",
+    "ponder": "^0.9.14",
+    "viem": "^2.23.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.4",
     "typescript": "^5.7.3"
   },
   "engines": {

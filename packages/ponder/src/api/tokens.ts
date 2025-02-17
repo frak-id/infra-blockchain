@@ -1,46 +1,49 @@
-import { type ApiContext, ponder } from "ponder:registry";
+import { db } from "ponder:api";
 import { tokenTable } from "ponder:schema";
+import { Elysia, t } from "elysia";
 import { eq, inArray } from "ponder";
 import { type Address, isAddress } from "viem";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unreachable code error
-BigInt.prototype.toJSON = function (): string {
-    return this.toString();
-};
+export const tokenRoutes = new Elysia()
+    /**
+     * Get a token's information by its address
+     */
+    .get(
+        "/tokens/:address",
+        async ({ params, error }) => {
+            // Extract token address
+            const address = params.address as Address;
+            if (!isAddress(address)) {
+                return error(400, "Invalid token address");
+            }
 
-/**
- * Get a tokens information by its address
- */
-ponder.get("/tokens/:address", async (ctx) => {
-    // Extract token address
-    const address = ctx.req.param("address") as Address;
-    if (!isAddress(address)) {
-        return ctx.text("Invalid token address address", 400);
-    }
+            // Perform the sql query
+            const rewards = await db
+                .select({
+                    address: tokenTable.id,
+                    name: tokenTable.name,
+                    symbol: tokenTable.symbol,
+                    decimals: tokenTable.decimals,
+                })
+                .from(tokenTable)
+                .where(eq(tokenTable.id, address));
 
-    // Perform the sql query
-    const rewards = await ctx.db
-        .select({
-            address: tokenTable.id,
-            name: tokenTable.name,
-            symbol: tokenTable.symbol,
-            decimals: tokenTable.decimals,
-        })
-        .from(tokenTable)
-        .where(eq(tokenTable.id, address));
-
-    // Return the result as json
-    return ctx.json(rewards);
-});
+            // Return the result as json
+            return rewards;
+        },
+        {
+            params: t.Object({
+                address: t.String(),
+            }),
+        }
+    );
 
 /**
  * Get all the tokens information
  */
 export async function getTokens({
     addresses,
-    ctx,
-}: { addresses: readonly Address[]; ctx: ApiContext }) {
+}: { addresses: readonly Address[] }) {
     // If no addresses, return an empty array
     if (!addresses || addresses.length === 0) {
         return [];
@@ -50,7 +53,7 @@ export async function getTokens({
     const addressSet = new Set(addresses);
 
     // Find all the tokens
-    return ctx.db
+    return db
         .select({
             address: tokenTable.id,
             name: tokenTable.name,
