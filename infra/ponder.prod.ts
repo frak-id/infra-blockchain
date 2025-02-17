@@ -14,9 +14,10 @@ const image = await aws.ecr.getImage({
 /**
  * Build the ponder indexing service
  */
-const indexerService = sstCluster.addService(
+const indexerService = new sst.aws.Service(
     "PonderProdIndexer",
     {
+        cluster: sstCluster,
         // Disable scaling on prod reader
         scaling: {
             cpuUtilization: false,
@@ -33,7 +34,11 @@ const indexerService = sstCluster.addService(
         // Link it to the database
         link: [database],
         // Env
-        ...ponderEnv,
+        environment: {
+            ...ponderEnv.environment,
+            NO_API: "true",
+        },
+        ssm: ponderEnv.ssm,
         // Logging options
         logging: {
             retention: "3 days",
@@ -73,9 +78,10 @@ const ponderServiceTargets = new ServiceTargets("PonderProdServiceDomain", {
 /**
  * Build the ponder indexing service
  */
-sstCluster.addService(
+new sst.aws.Service(
     "PonderProdReader",
     {
+        cluster: sstCluster,
         // hardware config
         cpu: "0.25 vCPU",
         memory: "0.5 GB",

@@ -57,10 +57,12 @@ export function createEnvConfig<NetworkKey extends string>({
     network,
     networkKey,
     pollingInterval,
+    maxRequestsPerSecond,
 }: {
     network: EnvNetworkConfig;
     networkKey: NetworkKey;
     pollingInterval?: number;
+    maxRequestsPerSecond?: number;
 }) {
     const contractNetworkConfig = {
         [networkKey]: {
@@ -85,6 +87,8 @@ export function createEnvConfig<NetworkKey extends string>({
                 transport: getTransport(network.chainId),
                 // Polling interval to 60sec by default
                 pollingInterval: pollingInterval ?? 60_000,
+                // Max request per second
+                maxRequestsPerSecond,
             },
         },
         // contracts config

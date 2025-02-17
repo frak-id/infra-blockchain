@@ -15,11 +15,11 @@
   "devDependencies": {
     "npm-check-updates": "^17.1.14",
     "@biomejs/biome": "1.9.4",
-    "@pulumi/aws": "^6.67.0",
-    "@pulumi/pulumi": "^3.148.0",
+    "@pulumi/aws": "^6.68.0",
+    "@pulumi/pulumi": "^3.150.0",
     "@types/aws-lambda": "8.10.147",
-    "@types/node": "^22.13.1",
-    "sst": "3.7.15",
+    "@types/node": "^22.13.4",
+    "sst": "3.9.2",
     "typescript": "^5.7.3"
   },
   "engines": {
