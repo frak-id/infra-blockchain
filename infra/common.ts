@@ -64,13 +64,14 @@ if ($dev) {
     new sst.x.DevCommand("ponder:serve", {
         dev: {
             title: "[Ponder] Serve",
-            command: "ponder --config config/config-dev.ts serve",
+            command:
+                "ponder --config config/config-prod.ts --log-level debug serve",
             directory: "packages/ponder",
             autostart: false,
         },
         environment: {
             PONDER_DATABASE_URL: dbUrl,
-            DATABASE_SCHEMA: "ponder_dev_16_1_2025",
+            DATABASE_SCHEMA: "ponder_local",
         },
         link: [database],
     });
@@ -80,7 +81,7 @@ if ($dev) {
         dev: {
             title: "[Ponder] Start",
             command:
-                "ponder --config config/config-dev.ts --log-level info start",
+                "ponder --config config/config-prod.ts --log-level debug start",
             directory: "packages/ponder",
             autostart: false,
         },

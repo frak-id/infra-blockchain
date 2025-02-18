@@ -21,9 +21,9 @@
     "docker:run": "docker run -P ponder-dev"
   },
   "dependencies": {
-    "elysia": "^1.2.13",
+    "elysia": "^1.2.14",
     "hono": "4.7.1",
-    "ponder": "^0.9.14",
+    "ponder": "^0.9.16",
     "viem": "^2.23.2"
   },
   "devDependencies": {
