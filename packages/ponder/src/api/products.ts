@@ -74,6 +74,10 @@ export const productRoutes = new Elysia({
                     },
                 })
                 .from(bankingContractTable)
+                .innerJoin(
+                    tokenTable,
+                    eq(bankingContractTable.tokenId, tokenTable.id)
+                )
                 .where(eq(bankingContractTable.productId, BigInt(id)));
 
             // Return the result as json
