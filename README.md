@@ -15,3 +15,11 @@ Both services are deployed as containerized applications on AWS ECS (Elastic Con
 ## License
 
 This project is licensed under the GNU GPLv3 License - see the LICENSE file for details.
+
+## Setup
+
+Allow gcloud to push the image
+```sh
+gcloud auth application-default login
+gcloud auth configure-docker europe-west1-docker.pkg.dev
+```
