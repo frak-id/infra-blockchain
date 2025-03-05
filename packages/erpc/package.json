@@ -9,7 +9,7 @@
     "build:check": "erpc-config validate",
     "lint": "biome lint .",
     "typecheck": "tsc",
-    "dev": "@erpc-cloud/cli dev",
+    "dev": "bunx @erpc-cloud/cli",
     "docker:dev": "docker build --tag frak-erpc . && docker run --env-file ./.env.local -P frak-erpc"
   },
   "devDependencies": {
