@@ -14,9 +14,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "viem": "^2.23.2",
-    "sst": "3.9.15",
-    "typescript": "^5.7.3"
+    "viem": "^2.23.14",
+    "sst": "3.10.8",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
     "@erpc-cloud/config": "^0.0.39",
