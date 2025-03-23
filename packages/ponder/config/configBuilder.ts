@@ -7,7 +7,6 @@ import {
     type Transport,
     type TransportConfig,
     createTransport,
-    fallback,
     parseAbiItem,
 } from "viem";
 import * as deployedAddresses from "../abis/addresses.json";
@@ -276,21 +275,14 @@ function getTransport(chainId: number) {
     // todo: rpc url = internal or external, use both env variables
     // Get our erpc instance transport
     const erpcInternalUrl = process.env.INTERNAL_RPC_URL;
-    const erpcExternalUrl = process.env.EXTERNAL_RPC_URL;
-    if (!erpcInternalUrl || !erpcExternalUrl) {
+    if (!erpcInternalUrl) {
         throw new Error("Missing erpc environment variable");
     }
 
-    // Base client is just a fallback between cloudmap direct service and external service
-    const baseClient = fallback([
+    // Return the base client wrapper in a cooldown one, aiming to slow down real time indexing on arbitrum / arbitrum sepolia
+    return safeClient(
         http(
             `${erpcInternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`
-        ),
-        http(
-            `${erpcExternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`
-        ),
-    ]);
-
-    // Return the base client wrapper in a cooldown one, aiming to slow down real time indexing on arbitrum / arbitrum sepolia
-    return safeClient(baseClient);
+        )
+    );
 }

@@ -72,11 +72,7 @@ export const ponderInstance = new KubernetesService(
                         },
                         {
                             name: "INTERNAL_RPC_URL",
-                            value: $interpolate`http://erpc-service.${blockchainNamespace.metadata.name}.svc.cluster.local:8080/ponder-rpc/evm`,
-                        },
-                        {
-                            name: "EXTERNAL_RPC_URL",
-                            value: $interpolate`https://erpc.${baseDomainName}/ponder-rpc/evm`,
+                            value: $interpolate`http://erpc-service.${blockchainNamespace.metadata.name}:80/ponder-rpc/evm`,
                         },
                     ],
                     // Mount all the secrets

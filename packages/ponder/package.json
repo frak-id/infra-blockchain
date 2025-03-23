@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "codegen": "ponder --config config/config-local.ts codegen",
-    "dev": "ponder --config config/config-local.ts --log-level info dev",
+    "dev": "ponder --config config/config-local.ts --log-level trace dev",
     "format": "biome check --write .",
     "format:check": "biome check .",
     "lint": "biome lint .",
@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "elysia": "^1.2.25",
-    "hono": "4.7.2",
-    "ponder": "^0.9.28",
+    "hono": "4.7.5",
+    "ponder": "^0.10.4",
     "viem": "^2.23.14"
   },
   "devDependencies": {
