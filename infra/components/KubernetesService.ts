@@ -9,6 +9,7 @@ import type {
     DevCommand,
     DevCommandArgs,
 } from "../../.sst/platform/src/components/experimental/index.js";
+import { normalizedStageName } from "../utils.js";
 
 // SST Command import
 const Command: typeof DevCommand = await import(
@@ -157,7 +158,15 @@ export class KubernetesService extends ComponentResource {
                             // We are always deploying on arm64
                             nodeSelector: {
                                 "kubernetes.io/arch": "arm64",
+                                "cloud.google.com/gke-nodepool": `app-${normalizedStageName}`,
                             },
+                            tolerations: [
+                                {
+                                    key: "dedicated",
+                                    value: `app-${normalizedStageName}`,
+                                    effect: "NoSchedule",
+                                },
+                            ],
                         },
                     },
                 },

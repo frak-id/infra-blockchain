@@ -1,15 +1,12 @@
 import path from "node:path";
-import * as k8s from "@pulumi/kubernetes";
-import { KubernetesService } from "./components/KubernetesService";
-
-// Create a dedicated namespace for monitoring
-const blockchainNamespace = new k8s.core.v1.Namespace("infra-blockchain", {
-    metadata: { name: "infra-blockchain" },
-});
+import { KubernetesService } from "../components/KubernetesService";
+import { normalizedStageName } from "../utils";
+import { erpcSecrets } from "./secrets";
+import { baseDomainName, blockchainNamespace, getDbUrl } from "./utils";
 
 const appLabels = { app: "erpc" };
 const imageName = "erpc";
-const repository = `erpc-${$app.stage}`;
+const repository = `erpc-${normalizedStageName}`;
 
 /**
  * Artifact registry for the erpc image
@@ -37,23 +34,10 @@ const erpcImage = new docker.Image(imageName, {
         platform: "linux/arm64",
         args: {
             NODE_ENV: "production",
-            STAGE: $app.stage,
+            STAGE: normalizedStageName,
         },
     },
 });
-
-// Craft the erpc db url
-const dbStage = $app.stage !== "production" ? "dev" : "production";
-const dbUser = `erpc_${dbStage}`;
-const dbPassword = $output(
-    gcp.secretmanager.getSecretVersion({
-        secret: `erpc-db-secret-${dbStage}`,
-    })
-);
-const instance = $output(
-    gcp.sql.getDatabaseInstance({ name: `master-db-${dbStage}` })
-);
-const dbUrl = $interpolate`postgres://${dbUser}:${dbPassword.secretData}@${instance.privateIpAddress}:5432/erpc`;
 
 /**
  * Deploy erpc using the new service
@@ -70,19 +54,12 @@ export const erpcInstance = new KubernetesService("Erpc", {
                 name: "erpc",
                 image: erpcImage.imageName,
                 ports: [{ containerPort: 8080 }, { containerPort: 6060 }],
-                env: [
-                    { name: "ERPC_DATABASE_URL", value: dbUrl },
+                env: [{ name: "ERPC_DATABASE_URL", value: getDbUrl("erpc") }],
+                // Mount all the secrets
+                envFrom: [
                     {
-                        name: "BLOCKPI_API_KEY_ARB_SEPOLIA",
-                        value: "test",
+                        secretRef: { name: erpcSecrets.metadata.name },
                     },
-                    { name: "BLOCKPI_API_KEY_ARB", value: "test" },
-                    { name: "ALCHEMY_API_KEY", value: "test" },
-                    { name: "PIMLICO_API_KEY", value: "test" },
-                    { name: "DRPC_API_KEY", value: "test" },
-                    { name: "DWELIR_API_KEY", value: "test" },
-                    { name: "PONDER_RPC_SECRET", value: "test" },
-                    { name: "NEXUS_RPC_SECRET", value: "test" },
                 ],
                 // Add liveness probe
                 livenessProbe: {
@@ -132,7 +109,7 @@ export const erpcInstance = new KubernetesService("Erpc", {
 
     // Ingress config
     ingress: {
-        host: "erpc.gcp-dev.frak.id",
+        host: `erpc.${baseDomainName}`,
         tlsSecretName: "erpc-tls",
     },
 

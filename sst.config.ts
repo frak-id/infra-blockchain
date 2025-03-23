@@ -24,10 +24,18 @@ export default $config({
     },
     async run() {
         await import("./infra/common.ts");
-        if ($dev) {
-            await import("./infra/erpc-k8s.ts");
+
+        const isGcp = $app?.stage?.startsWith("gcp");
+        const _isProd = $app?.stage?.endsWith("production");
+
+        // Gcp specific deployment
+        if (isGcp) {
+            await import("./infra/k8s/erpc.ts");
+            await import("./infra/k8s/ponder-dev.ts");
             return;
         }
+
+        // Aws specific deployment
         if ($app.stage === "production") {
             // ERPC + ponder deployment on prod
             await import("./infra/erpc.ts");
