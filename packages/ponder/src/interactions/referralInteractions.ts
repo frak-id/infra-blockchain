@@ -7,7 +7,7 @@ ponder.on(
     async ({ event, context }) => {
         // Insert the press event
         await context.db.insert(interactionEventTable).values({
-            id: event.log.id,
+            id: event.id,
             interactionId: event.log.address,
             user: event.args.user,
             type: "CREATE_REFERRAL_LINK",
@@ -30,7 +30,7 @@ ponder.on(
 ponder.on("ProductInteraction:UserReferred", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({
-        id: event.log.id,
+        id: event.id,
         interactionId: event.log.address,
         user: event.args.user,
         type: "REFERRED",

@@ -241,7 +241,7 @@ function safeClient(initialTransport: Transport): Transport {
                     return filteredResponse;
                 }
 
-                // If that's an eth_getBlockByNumber request, with latest block, do some manual thread lock, to ensure this block is well synchronised across different rpcs
+                // If that's an eth_getBlockByNumber request, with latest block, do some manual thread lock, to ensure this block is well synchronized across different rpcs
                 if (
                     body.method === "eth_getBlockByNumber" &&
                     Array.isArray(body.params) &&
@@ -250,8 +250,8 @@ function safeClient(initialTransport: Transport): Transport {
                 ) {
                     // Perform the request
                     const response = await transport.request(body);
-                    // Lock the thread for 3s
-                    await new Promise((resolve) => setTimeout(resolve, 3_000));
+                    // Lock the thread for 1s
+                    await new Promise((resolve) => setTimeout(resolve, 1_000));
                     // Return the response
                     return response;
                 }

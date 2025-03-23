@@ -46,7 +46,7 @@ export function getPonderEntrypoint(
                 exclude: [".*", "generated", "node_modules"],
             },
             files: {
-                include: ["src/**/*.ts", "config/**/*.ts", "package.json"],
+                include: ["**/*.ts", "config/**/*.ts", "package.json"],
             },
         })
     ).apply(({ hash }) => hash.substring(0, 8));

@@ -10,9 +10,9 @@ const defaultFailsafe: FailsafeConfig = {
     },
     // @ts-ignore: Should expose a type union for the hedge policy
     hedge: {
-        // delay: "3s",
         maxCount: 2,
-        minDelay: "100ms",
+        delay: "300ms",
+        minDelay: "300ms",
         maxDelay: "2s",
         quantile: 0.95,
     },
@@ -45,7 +45,7 @@ export const arbSepoliaNetwork = {
     evm: {
         chainId: 421614,
         integrity: {
-            enforceGetLogsBlockRange: true,
+            enforceGetLogsBlockRange: false,
         },
     },
     // selectionPolicy: {

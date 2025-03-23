@@ -5,7 +5,7 @@ import { safeIncreaseCampaignsStats } from "./stats";
 ponder.on("ProductInteraction:ArticleRead", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({
-        id: event.log.id,
+        id: event.id,
         interactionId: event.log.address,
         user: event.args.user,
         type: "READ_ARTICLE",
@@ -27,7 +27,7 @@ ponder.on("ProductInteraction:ArticleRead", async ({ event, context }) => {
 ponder.on("ProductInteraction:ArticleOpened", async ({ event, context }) => {
     // Insert the press event
     await context.db.insert(interactionEventTable).values({
-        id: event.log.id,
+        id: event.id,
         interactionId: event.log.address,
         user: event.args.user,
         type: "OPEN_ARTICLE",

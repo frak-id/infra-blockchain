@@ -11,6 +11,7 @@ import {
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
+    alchemyUpstream,
     blockPiArbSepoliaUpstream,
     blockPiArbUpstream,
     drpcUpstream,
@@ -57,7 +58,7 @@ export default initErpcConfig({
     // Add upstreams to the config
     .decorate("upstreams", {
         envio: envioUpstream,
-        // alchemy: alchemyUpstream,
+        alchemy: alchemyUpstream,
         pimlico: pimlicoUpstream,
         drpc: drpcUpstream,
         // Dwellir
@@ -72,7 +73,7 @@ export default initErpcConfig({
         id: "ponder-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
         upstreams: [
-            // upstreams.alchemy,
+            upstreams.alchemy,
             upstreams.envio,
             upstreams.drpc,
             upstreams.dwelirArb,
