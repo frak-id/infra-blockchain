@@ -1,4 +1,5 @@
-import { dbUrl, vpc } from "./common.ts";
+import path from "node:path";
+import { hashElement } from "folder-hash";
 
 /**
  * Check if we are in gcp
@@ -19,17 +20,39 @@ export const normalizedStageName =
 /**
  * Get the ponder entrypoint
  * @param type
+ * @param timestamp -> Used if we are deploying multiple instance at the same time, to ensure they are using the same schema
  */
-export function getPonderEntrypoint(type: "indexer" | "reader") {
+export function getPonderEntrypoint(
+    type: "indexer" | "reader",
+    timestamp: number = Date.now()
+) {
     const logLevel = isProd ? "warn" : "info";
     const configPath = isProd
         ? "config/config-prod.ts"
         : "config/config-dev.ts";
     const command = type === "indexer" ? "start" : "serve";
 
-    // Build the schema name we will use ($stage_DD_MM_YYYY)
-    const date = new Date();
-    const schemaName = `ponder_${$app.stage}_${date.getDate()}_${date.getMonth()}_${date.getFullYear()}`;
+    // Get a readable date (dd.mm.yyyy)
+    const date = new Date(timestamp);
+    const readableDate = `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
+
+    // Get the hash of the current ponder directory
+    const ponderDir = path.join($cli.paths.root, "packages", "ponder");
+    const ponderHash = $output(
+        hashElement(ponderDir, {
+            algo: "sha256",
+            encoding: "hex",
+            folders: {
+                exclude: [".*", "generated", "node_modules"],
+            },
+            files: {
+                include: ["src/**/*.ts", "config/**/*.ts", "package.json"],
+            },
+        })
+    ).apply(({ hash }) => hash.substring(0, 8));
+
+    // Build the schema name we will use ($stage_date_folderHash)
+    const schemaName = $interpolate`ponder_${normalizedStageName}_${readableDate}_${ponderHash}`;
 
     // Return the full docker entrypoint command
     return [
@@ -46,31 +69,3 @@ export function getPonderEntrypoint(type: "indexer" | "reader") {
         schemaName,
     ];
 }
-
-/**
- * Get the ponder env and ssm variable
- */
-const cloudmapErpcUrl = vpc.nodes.cloudmapNamespace.name.apply(
-    (namespaceName) =>
-        `http://Erpc.production.frak-indexer.${namespaceName}:8080/ponder-rpc/evm`
-);
-const externalErpcUrl = "https://rpc.frak-labs.com/ponder-rpc/evm";
-
-/**
- * Export the ponder  environment
- */
-export const ponderEnv = {
-    environment: {
-        // For legacy images
-        ERPC_URL: cloudmapErpcUrl,
-        INTERNAL_RPC_URL: cloudmapErpcUrl,
-        EXTERNAL_RPC_URL: externalErpcUrl,
-        // Link it to the database
-        PONDER_DATABASE_URL: dbUrl,
-    },
-    ssm: {
-        // Endpoints secrets,
-        PONDER_RPC_SECRET:
-            "arn:aws:ssm:eu-west-1:262732185023:parameter/sst/frak-indexer/.fallback/Secret/PONDER_RPC_SECRET/value",
-    },
-};

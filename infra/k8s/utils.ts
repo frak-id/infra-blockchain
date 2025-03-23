@@ -17,13 +17,13 @@ export function getDbUrl(service: "erpc" | "ponder") {
         gcp.secretmanager.getSecretVersion({
             secret: `${service}-db-secret-${normalizedStageName}`,
         })
-    );
+    ).apply((secret) => encodeURIComponent(secret.secretData));
     const instance = $output(
         gcp.sql.getDatabaseInstance({
             name: `master-db-${normalizedStageName}`,
         })
     );
-    return $interpolate`postgres://${dbUser}:${dbPassword.secretData}@${instance.privateIpAddress}:5432/${service}`;
+    return $interpolate`postgres://${dbUser}:${dbPassword}@${instance.privateIpAddress}:5432/${service}`;
 }
 
 /**

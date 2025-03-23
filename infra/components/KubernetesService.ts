@@ -158,7 +158,7 @@ export class KubernetesService extends ComponentResource {
                             // We are always deploying on arm64
                             nodeSelector: {
                                 "kubernetes.io/arch": "arm64",
-                                "cloud.google.com/gke-nodepool": `app-${normalizedStageName}`,
+                                // "cloud.google.com/gke-nodepool": "application",
                             },
                             tolerations: [
                                 {

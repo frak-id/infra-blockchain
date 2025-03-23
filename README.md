@@ -21,6 +21,6 @@ This project is licensed under the GNU GPLv3 License - see the LICENSE file for 
 Allow gcloud to push the image
 ```sh
 gcloud auth application-default login
-gcloud container clusters get-credentials master-cluster-dev --location europe-west1-b
+gcloud container clusters get-credentials master-cluster --location europe-west1-b
 gcloud auth configure-docker europe-west1-docker.pkg.dev
 ```

@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import { all } from "@pulumi/pulumi";
-import { database, sstCluster, vpc } from "./common.ts";
+import { database, ponderEnv, sstCluster, vpc } from "./common.ts";
 import { ServiceTargets } from "./components/ServiceTargets.ts";
-import { getPonderEntrypoint, ponderEnv } from "./utils.ts";
+import { getPonderEntrypoint } from "./utils.ts";
 
 // Get the image we will deploy
 const image = await aws.ecr.getImage({
