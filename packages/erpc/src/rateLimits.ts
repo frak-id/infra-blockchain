@@ -1,56 +1,46 @@
-import type { RateLimitRuleConfig } from "@erpc-cloud/config";
+import type { RateLimitBudgetConfig } from "@erpc-cloud/config";
 
 /**
- * Build a generic rate limits rules, counting on the number of request per minutes
- * @param count
+ * Max 20 RPS on dwelir
  */
-function genericRateLimitsRules(count: number): RateLimitRuleConfig {
-    return {
-        method: "*",
-        maxCount: count,
-        period: "1s",
-        waitTime: "30s",
-    };
-}
+export const dwelirRateLimits = {
+    id: "dwelir",
+    rules: [
+        {
+            method: "*",
+            maxCount: 20,
+            period: "1s",
+            waitTime: "5s",
+        },
+    ],
+} as const satisfies RateLimitBudgetConfig;
 
-type RuleExport = [RateLimitRuleConfig, ...RateLimitRuleConfig[]];
+/**
+ * Max 20 RPS on blockpi
+ */
+export const blockPiRateLimits = {
+    id: "blockPi",
+    rules: [
+        {
+            method: "*",
+            maxCount: 20,
+            period: "1s",
+            waitTime: "5s",
+        },
+    ],
+} as const satisfies RateLimitBudgetConfig;
 
-export const envioRateRules: RuleExport = [
-    genericRateLimitsRules(600),
-    {
-        method: "eth_getLogs",
-        maxCount: 100,
-        period: "1s",
-        waitTime: "5s",
-    },
-    {
-        method: "eth_getBlockByNumber",
-        maxCount: 100,
-        period: "1s",
-        waitTime: "5s",
-    },
-];
-
-export const alchemyRateRules: RuleExport = [
-    genericRateLimitsRules(50),
-    {
-        method: "eth_getLogs",
-        maxCount: 10,
-        period: "1s",
-        waitTime: "10s",
-    },
-    {
-        method: "eth_getBlockByNumber",
-        maxCount: 15,
-        period: "1s",
-        waitTime: "10s",
-    },
-];
-
-export const pimlicoRateRules: RuleExport = [genericRateLimitsRules(400)];
-
-export const blockPiRateRules: RuleExport = [genericRateLimitsRules(30)];
-
-export const drpcRateRules: RuleExport = [genericRateLimitsRules(100)];
-
-export const dwelirRateRules: RuleExport = [genericRateLimitsRules(30)];
+/**
+ * Max 50 RPS on the indexer
+ */
+export const indexerProjectRateLimits = {
+    id: "indexer",
+    rules: [
+        {
+            method: "*",
+            maxCount: 50,
+            period: "1s",
+            waitTime: "5s",
+        },
+    ],
+} as const satisfies RateLimitBudgetConfig;

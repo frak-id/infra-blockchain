@@ -1,34 +1,110 @@
-import type { LogLevel } from "@erpc-cloud/config";
-import { initErpcConfig } from "@konfeature/erpc-config-generator";
-import { arbNetwork, arbSepoliaNetwork } from "./networks";
+import type { Config, LogLevel, ProjectConfig } from "@erpc-cloud/config";
 import {
-    alchemyRateRules,
-    blockPiRateRules,
-    drpcRateRules,
-    dwelirRateRules,
-    envioRateRules,
-    pimlicoRateRules,
+    blockPiRateLimits,
+    dwelirRateLimits,
+    indexerProjectRateLimits,
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
-    alchemyUpstream,
-    blockPiArbSepoliaUpstream,
-    blockPiArbUpstream,
-    drpcUpstream,
+    alchemyProvider,
+    drpcProvider,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
-    envioUpstream,
-    pimlicoUpstream,
+    envioProvider,
+    freeRpcProvider,
+    pimlicoProvider,
 } from "./upstreams";
 
 /**
- * Build our top level erpc config
+ * The ponder rpc project
+ *  - indexing only on envio + dwelir + blockPi
  */
-export default initErpcConfig({
-    logLevel: (process.env.ERPC_LOG_LEVEL ?? "debug") as LogLevel,
-    database: {
-        evmJsonRpcCache: cacheConfig,
+const ponderProject = {
+    id: "ponder-rpc",
+    rateLimitBudget: "indexer",
+    providers: [envioProvider, freeRpcProvider],
+    upstreams: [
+        dwelirArbUpstream,
+        dwelirArbSepoliaUpstream,
+        // block pi invalid
+        // blockPiArbUpstream,
+        // blockPiArbSepoliaUpstream,
+    ],
+    networkDefaults: {
+        failsafe: {
+            retry: {
+                maxAttempts: 2,
+                delay: "100ms",
+                backoffMaxDelay: "2s",
+                backoffFactor: 0.5,
+                jitter: "200ms",
+            },
+        },
     },
+    auth: {
+        strategies: [
+            {
+                type: "secret",
+                secret: {
+                    value: process.env.PONDER_RPC_SECRET ?? "a",
+                },
+            },
+        ],
+    },
+} as const satisfies ProjectConfig;
+
+/**
+ * The nexus rpc project
+ *  - only on alchemy + pimlico + drpc
+ */
+const nexusProject = {
+    id: "nexus-rpc",
+    providers: [alchemyProvider, pimlicoProvider, drpcProvider],
+    auth: {
+        strategies: [
+            {
+                type: "secret",
+                secret: {
+                    value: process.env.NEXUS_RPC_SECRET ?? "a",
+                },
+            },
+        ],
+    },
+    networkDefaults: {
+        failsafe: {
+            retry: {
+                maxAttempts: 3,
+                delay: "80ms",
+                backoffMaxDelay: "500ms",
+                backoffFactor: 0.5,
+                jitter: "200ms",
+            },
+            hedge: {
+                maxCount: 2,
+                delay: "300ms",
+                minDelay: "300ms",
+                maxDelay: "2s",
+                quantile: 0.95,
+            },
+        },
+    },
+    cors: {
+        allowedOrigins: ["*"],
+        allowedMethods: ["GET", "POST", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        exposedHeaders: ["X-Request-ID"],
+        allowCredentials: true,
+        maxAge: 3600,
+    },
+} as const satisfies ProjectConfig;
+
+/**
+ * Create the erpc config
+ */
+export default {
+    // Log level
+    logLevel: (process.env.ERPC_LOG_LEVEL ?? "debug") as LogLevel,
+    // Server + metrics config
     server: {
         httpPort: 8080,
         maxTimeout: "60s",
@@ -41,90 +117,18 @@ export default initErpcConfig({
         port: 6060,
         listenV6: false,
     },
-})
-    .addRateLimiters({
-        alchemy: alchemyRateRules,
-        envio: envioRateRules,
-        pimlico: pimlicoRateRules,
-        blockPi: blockPiRateRules,
-        drpc: drpcRateRules,
-        dwelir: dwelirRateRules,
-    })
-    // Add networks to the config
-    .decorate("networks", {
-        arbitrum: arbNetwork,
-        arbitrumSepolia: arbSepoliaNetwork,
-    })
-    // Add upstreams to the config
-    .decorate("upstreams", {
-        envio: envioUpstream,
-        alchemy: alchemyUpstream,
-        pimlico: pimlicoUpstream,
-        drpc: drpcUpstream,
-        // Dwellir
-        dwelirArb: dwelirArbUpstream,
-        dwelirArbSepolia: dwelirArbSepoliaUpstream,
-        // BlockPi
-        blockPiArb: blockPiArbUpstream,
-        blockPiArbSepolia: blockPiArbSepoliaUpstream,
-    })
-    // Add our ponder prod project
-    .addProject(({ store: { upstreams, networks } }) => ({
-        id: "ponder-rpc",
-        networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [
-            upstreams.alchemy,
-            upstreams.envio,
-            upstreams.drpc,
-            upstreams.dwelirArb,
-            upstreams.dwelirArbSepolia,
-            upstreams.blockPiArb,
-            upstreams.blockPiArbSepolia,
+    // Caching configuration
+    database: {
+        evmJsonRpcCache: cacheConfig,
+    },
+    // Each projects
+    projects: [ponderProject, nexusProject],
+    // Each rate limits
+    rateLimiters: {
+        budgets: [
+            dwelirRateLimits,
+            blockPiRateLimits,
+            indexerProjectRateLimits,
         ],
-        providers: [],
-        auth: {
-            strategies: [
-                {
-                    type: "secret",
-                    secret: {
-                        value: process.env.PONDER_RPC_SECRET ?? "a",
-                    },
-                },
-            ],
-        },
-    }))
-    // Add our wallet project
-    .addProject(({ store: { upstreams, networks } }) => ({
-        id: "nexus-rpc",
-        networks: [networks.arbitrum, networks.arbitrumSepolia],
-        upstreams: [
-            // upstreams.alchemy,
-            upstreams.drpc,
-            upstreams.pimlico,
-            upstreams.dwelirArb,
-            upstreams.dwelirArbSepolia,
-            upstreams.blockPiArb,
-            upstreams.blockPiArbSepolia,
-        ],
-        providers: [],
-        auth: {
-            strategies: [
-                {
-                    type: "secret",
-                    secret: {
-                        value: process.env.NEXUS_RPC_SECRET ?? "a",
-                    },
-                },
-            ],
-        },
-        cors: {
-            allowedOrigins: ["*"],
-            allowedMethods: ["GET", "POST", "OPTIONS"],
-            allowedHeaders: ["Content-Type", "Authorization"],
-            exposedHeaders: ["X-Request-ID"],
-            allowCredentials: true,
-            maxAge: 3600,
-        },
-    }))
-    // And bundle it altogether
-    .build();
+    },
+} as const satisfies Config;

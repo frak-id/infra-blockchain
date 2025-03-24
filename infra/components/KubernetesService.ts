@@ -322,6 +322,8 @@ export class KubernetesService extends ComponentResource {
                         release: "prometheus",
                         // Keep the app labels consistent with the service
                         ...this.args.appLabels,
+                        // Add the stage name to the labels
+                        environment: normalizedStageName,
                     },
                 },
                 spec: {
@@ -334,6 +336,10 @@ export class KubernetesService extends ComponentResource {
                             path: this.args.serviceMonitor.path,
                             interval:
                                 this.args.serviceMonitor.interval || "15s",
+                        },
+                        {
+                            targetLabel: "environment",
+                            replacement: normalizedStageName,
                         },
                     ],
                     namespaceSelector: {

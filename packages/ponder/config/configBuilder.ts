@@ -189,11 +189,6 @@ type GetLogsRpcType = Extract<
     { Method: "eth_getLogs" }
 >;
 
-type GetBlockByNumber = Extract<
-    PublicRpcSchema[number],
-    { Method: "eth_getBlockByNumber" }
->;
-
 /**
  * Custom transport with some failsafe options specific for envio upstream
  * @param initialTransport
@@ -241,21 +236,6 @@ function safeClient(initialTransport: Transport): Transport {
                     return filteredResponse;
                 }
 
-                // If that's an eth_getBlockByNumber request, with latest block, do some manual thread lock, to ensure this block is well synchronized across different rpcs
-                if (
-                    body.method === "eth_getBlockByNumber" &&
-                    Array.isArray(body.params) &&
-                    (body.params as GetBlockByNumber["Parameters"])?.[0] ===
-                        "latest"
-                ) {
-                    // Perform the request
-                    const response = await transport.request(body);
-                    // Lock the thread for 1s
-                    await new Promise((resolve) => setTimeout(resolve, 1_000));
-                    // Return the response
-                    return response;
-                }
-
                 // Otherwise, simple request
                 return transport.request(body);
             },
@@ -271,8 +251,6 @@ function safeClient(initialTransport: Transport): Transport {
  * @returns
  */
 function getTransport(chainId: number) {
-    // todo: Intercept getBlockByNumber and replace finalized with latest (plus small delay, like 0.5ms)
-    // todo: rpc url = internal or external, use both env variables
     // Get our erpc instance transport
     const erpcInternalUrl = process.env.INTERNAL_RPC_URL;
     if (!erpcInternalUrl) {
