@@ -66,13 +66,11 @@ jobs:
           project_id: 'frak-main-v1'
 
       - name: Set up QEMU
-        if: steps.changes.outputs.dockerImage == 'true'
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/arm64
 
       - name: Set up Docker Buildx
-        if: steps.changes.outputs.dockerImage == 'true'
         uses: docker/setup-buildx-action@v3
         with:
           platforms: linux/arm64
