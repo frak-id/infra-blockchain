@@ -337,10 +337,6 @@ export class KubernetesService extends ComponentResource {
                             interval:
                                 this.args.serviceMonitor.interval || "15s",
                         },
-                        {
-                            targetLabel: "environment",
-                            replacement: normalizedStageName,
-                        },
                     ],
                     namespaceSelector: {
                         matchNames: [this.args.namespace],
