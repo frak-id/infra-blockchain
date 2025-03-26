@@ -3,7 +3,6 @@ import { initErpcConfig } from "@konfeature/erpc-config-generator";
 import { arbNetwork, arbSepoliaNetwork } from "./networks";
 import {
     alchemyRateRules,
-    blockPiRateRules,
     drpcRateRules,
     dwelirRateRules,
     envioRateRules,
@@ -11,8 +10,7 @@ import {
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
-    blockPiArbSepoliaUpstream,
-    blockPiArbUpstream,
+    alchemyUpstream,
     drpcUpstream,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
@@ -45,7 +43,7 @@ export default initErpcConfig({
         alchemy: alchemyRateRules,
         envio: envioRateRules,
         pimlico: pimlicoRateRules,
-        blockPi: blockPiRateRules,
+        // blockPi: blockPiRateRules,
         drpc: drpcRateRules,
         dwelir: dwelirRateRules,
     })
@@ -57,15 +55,15 @@ export default initErpcConfig({
     // Add upstreams to the config
     .decorate("upstreams", {
         envio: envioUpstream,
-        // alchemy: alchemyUpstream,
+        alchemy: alchemyUpstream,
         pimlico: pimlicoUpstream,
         drpc: drpcUpstream,
         // Dwellir
         dwelirArb: dwelirArbUpstream,
         dwelirArbSepolia: dwelirArbSepoliaUpstream,
         // BlockPi
-        blockPiArb: blockPiArbUpstream,
-        blockPiArbSepolia: blockPiArbSepoliaUpstream,
+        // blockPiArb: blockPiArbUpstream,
+        // blockPiArbSepolia: blockPiArbSepoliaUpstream,
     })
     // Add our ponder prod project
     .addProject(({ store: { upstreams, networks } }) => ({
@@ -77,8 +75,6 @@ export default initErpcConfig({
             upstreams.drpc,
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
-            upstreams.blockPiArb,
-            upstreams.blockPiArbSepolia,
         ],
         providers: [],
         auth: {
@@ -97,13 +93,11 @@ export default initErpcConfig({
         id: "nexus-rpc",
         networks: [networks.arbitrum, networks.arbitrumSepolia],
         upstreams: [
-            // upstreams.alchemy,
+            upstreams.alchemy,
             upstreams.drpc,
             upstreams.pimlico,
             upstreams.dwelirArb,
             upstreams.dwelirArbSepolia,
-            upstreams.blockPiArb,
-            upstreams.blockPiArbSepolia,
         ],
         providers: [],
         auth: {
