@@ -1,0 +1,87 @@
+name: 🚀 Deploy GCP
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - staging
+      - chore/kuberenetes-switch
+
+concurrency:
+  group: ${{ github.ref }}-deploy
+
+env:
+  CI: true
+
+permissions:
+  id-token: write
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: "🔧 Set up environment variables"
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "STAGE=gcp-production" >> $GITHUB_ENV
+          else
+            echo "STAGE=gcp-staging" >> $GITHUB_ENV
+          fi
+
+      - name: "🔨 Install dependencies"
+        run: bun install --frozen-lockfile
+
+      - name: "👥 Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::262732185023:role/github-action-deploy-role
+          aws-region: eu-west-1
+          retry-max-attempts: 5
+
+      - name:  "👥 Login to Amazon ECR"
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: "👥 Login to Google Cloud"
+        uses: 'google-github-actions/auth@v2'
+        id: 'auth'
+        with:
+          workload_identity_provider: 'projects/426208135260/locations/global/workloadIdentityPools/github/providers/sst-deployer'
+          project_id: 'frak-main-v1'
+  
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          project_id: 'frak-main-v1'
+
+      - name: Set up QEMU
+        if: steps.changes.outputs.dockerImage == 'true'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Set up Docker Buildx
+        if: steps.changes.outputs.dockerImage == 'true'
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: "🚀 SST Deploy"
+        run: |
+          bun sst install
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            bun run deploy-gcp:production
+          else
+            bun run deploy-gcp:staging
+          fi
