@@ -39,9 +39,6 @@ export default $config({
             // ERPC + ponder deployment on prod
             await import("./infra/erpc.ts");
             await import("./infra/ponder.prod.ts");
-        } else {
-            // Only ponder on dev
-            await import("./infra/ponder.dev.ts");
         }
     },
 });
