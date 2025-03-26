@@ -65,6 +65,7 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
           project_id: 'frak-main-v1'
+          install_components: 'kubectl,gke-gcloud-auth-plugin'
 
       - name: 'Docker and k8s Auth'
         run: |
