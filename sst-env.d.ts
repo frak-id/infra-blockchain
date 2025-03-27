@@ -5,17 +5,37 @@
 
 declare module "sst" {
     export interface Resource {
-        MasterVpc: {
-            bastion: string;
-            type: "sst.aws.Vpc";
+        ALCHEMY_API_KEY: {
+            type: "sst.sst.Secret";
+            value: string;
         };
-        blockchain: {
-            database: string;
-            host: string;
-            password: string;
-            port: number;
-            type: "sst.aws.Postgres";
-            username: string;
+        BLOCKPI_API_KEY_ARB: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        BLOCKPI_API_KEY_ARB_SEPOLIA: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        DRPC_API_KEY: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        DWELIR_API_KEY: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        NEXUS_RPC_SECRET: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        PIMLICO_API_KEY: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
+        PONDER_RPC_SECRET: {
+            type: "sst.sst.Secret";
+            value: string;
         };
     }
 }

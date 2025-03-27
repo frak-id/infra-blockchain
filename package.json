@@ -6,6 +6,8 @@
     "dev": "sst dev",
     "deploy:prod": "sst deploy --stage production",
     "deploy:dev": "sst deploy --stage dev",
+    "deploy-gcp:prod": "sst deploy --stage gcp-production",
+    "deploy-gcp:staging": "sst deploy --stage gcp-staging",
     "format": "biome check --write .",
     "format:check": "biome check .",
     "lint": "biome lint .",
@@ -13,13 +15,19 @@
     "update:deps": "npm-check-updates -ui -ws"
   },
   "devDependencies": {
-    "npm-check-updates": "^17.1.16",
     "@biomejs/biome": "1.9.4",
     "@pulumi/aws": "^6.73.0",
+    "@pulumi/docker": "^4.6.2",
+    "@pulumi/docker-build": "^0.0.10",
+    "@pulumi/gcp": "^8.22.0",
+    "@pulumi/kubernetes": "^4.22.1",
     "@pulumi/pulumi": "^3.157.0",
     "@types/aws-lambda": "8.10.147",
+    "@types/folder-hash": "^4.0.4",
     "@types/node": "^22.13.11",
-    "sst": "3.10.8",
+    "folder-hash": "^4.1.1",
+    "npm-check-updates": "^17.1.16",
+    "sst": "3.9.15",
     "typescript": "^5.8.2"
   },
   "engines": {

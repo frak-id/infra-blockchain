@@ -5,11 +5,11 @@
   "scripts": {
     "format": "biome check --write .",
     "format:check": "biome check .",
-    "build": "erpc-config",
-    "build:check": "erpc-config validate",
+    "build": "bun build --outfile erpc.js --minify --target node --external '@erpc-cloud/*' src/index.ts",
+    "build:check": "npx @erpc-cloud/cli validate --config src/index.ts",
     "lint": "biome lint .",
     "typecheck": "tsc",
-    "dev": "@erpc-cloud/cli dev",
+    "dev": "npx @erpc-cloud/cli",
     "docker:dev": "docker build --tag frak-erpc . && docker run --env-file ./.env.local -P frak-erpc"
   },
   "devDependencies": {
@@ -19,8 +19,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@erpc-cloud/config": "^0.0.39",
-    "@konfeature/erpc-config-generator": "0.1.2"
+    "@erpc-cloud/config": "^0.0.41"
   },
   "engines": {
     "node": ">=18.14"

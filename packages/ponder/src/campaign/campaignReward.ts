@@ -44,7 +44,7 @@ ponder.on("CampaignBanks:RewardAdded", async ({ event, context }) => {
 
     // Insert the reward event
     await context.db.insert(rewardAddedEventTable).values({
-        id: event.log.id,
+        id: event.id,
         contractId: bankingContract.id,
         user: event.args.user,
         emitter: event.args.emitter,
@@ -101,7 +101,7 @@ ponder.on("CampaignBanks:RewardClaimed", async ({ event, context: { db } }) => {
 
     // Insert the reward event
     await db.insert(rewardClaimedEventTable).values({
-        id: event.log.id,
+        id: event.id,
         contractId: bankingContract.id,
         user: event.args.user,
         amount: event.args.amount,
