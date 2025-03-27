@@ -6,10 +6,9 @@ on:
     branches:
       - main
       - staging
-      - chore/kuberenetes-switch
 
 concurrency:
-  group: ${{ github.ref }}-deploy
+  group: ${{ github.ref }}-deploy-gcp
 
 env:
   CI: true
@@ -30,6 +29,17 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+
+      - name: Cache SST
+        id: sst-caching
+        uses: actions/cache@v4
+        with:
+          path: | 
+            .sst/platform/
+            .sst/provider-lock.json
+            .sst/esbuild.json
+          key: ${{ runner.os }}-sst-${{ hashFiles('./sst.config.ts') }}
+          restore-keys: ${{ runner.os }}-sst-
 
       - name: "🔧 Set up environment variables"
         run: |
