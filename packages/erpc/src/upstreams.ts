@@ -72,7 +72,7 @@ export const freeRpcProvider = {
 } as const satisfies ProviderConfig;
 
 export const dwelirArbUpstream = {
-    endpoint: `https://api-arbitrum-mainnet-archive.dwellir.com/${process.env.DWELIR_API_KEY}`,
+    endpoint: `https://api-arbitrum-mainnet-archive.n.dwellir.com/${process.env.DWELIR_API_KEY}`,
     type: "evm",
     vendorName: "dwelir",
     // Budget for rate limiting
@@ -81,7 +81,7 @@ export const dwelirArbUpstream = {
 } as const satisfies UpstreamConfig;
 
 export const dwelirArbSepoliaUpstream = {
-    endpoint: `https://api-arbitrum-sepolia-archive.dwellir.com/${process.env.DWELIR_API_KEY}`,
+    endpoint: `https://api-arbitrum-sepolia.n.dwellir.com/${process.env.DWELIR_API_KEY}`,
     type: "evm",
     vendorName: "dwelir",
     // Budget for rate limiting

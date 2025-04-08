@@ -4,7 +4,7 @@ import { isProd, normalizedStageName } from "../utils";
 export const blockchainNamespace = new kubernetes.core.v1.Namespace(
     "infra-blockchain",
     {
-        metadata: { name: "infra-blockchain" },
+        metadata: { name: `blockchain-${normalizedStageName}` },
     }
 );
 

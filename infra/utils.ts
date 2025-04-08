@@ -34,7 +34,7 @@ export function getPonderEntrypoint(
 
     // Get a readable date (dd.mm.yyyy)
     const date = new Date(timestamp);
-    const readableDate = `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
+    const readableDate = `${date.getUTCDate()}_${date.getUTCMonth() + 1}_${date.getUTCFullYear().toString().slice(2)}`;
 
     // Get the hash of the current ponder directory
     const ponderDir = path.join($cli.paths.root, "packages", "ponder");

@@ -39,6 +39,18 @@ const ponderProject = {
                 backoffFactor: 0.5,
                 jitter: "200ms",
             },
+            hedge: {
+                // Wait at least 2s before hedging a request
+                delay: "2s",
+                maxCount: 3,
+            },
+        },
+        // @ts-ignore
+        evm: {
+            integrity: {
+                enforceGetLogsBlockRange: false,
+                enforceHighestBlock: false,
+            },
         },
     },
     auth: {
@@ -81,7 +93,7 @@ const nexusProject = {
             },
             hedge: {
                 maxCount: 2,
-                delay: "300ms",
+                delay: "50ms",
                 minDelay: "300ms",
                 maxDelay: "2s",
                 quantile: 0.95,
