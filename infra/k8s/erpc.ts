@@ -58,6 +58,7 @@ export const erpcInstance = new KubernetesService(
 
         // Pod config
         pod: {
+            replicas: isProd ? 2 : 1,
             containers: [
                 {
                     name: "erpc",

@@ -24,7 +24,6 @@ export default $config({
     },
     async run() {
         const isGcp = $app?.stage?.startsWith("gcp");
-        const _isProd = $app?.stage?.endsWith("production");
 
         // Gcp specific deployment
         if (isGcp) {
@@ -33,12 +32,7 @@ export default $config({
             return;
         }
 
-        // Aws specific deployment
-        await import("./infra/common.ts");
-        if ($app.stage === "production") {
-            // ERPC + ponder deployment on prod
-            await import("./infra/erpc.ts");
-            await import("./infra/ponder.prod.ts");
-        }
+        console.log("Not deploying anything");
+        return;
     },
 });
