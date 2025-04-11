@@ -1,6 +1,6 @@
 import path from "node:path";
 import { KubernetesService } from "../components/KubernetesService";
-import { normalizedStageName } from "../utils";
+import { isProd, normalizedStageName } from "../utils";
 import { erpcSecrets } from "./secrets";
 import { baseDomainName, blockchainNamespace, getDbUrl } from "./utils";
 
@@ -64,6 +64,7 @@ export const erpcInstance = new KubernetesService(
                     image: erpcImage.imageName,
                     ports: [{ containerPort: 8080 }, { containerPort: 6060 }],
                     env: [
+                        { name: "ERPC_LOG_LEVEL", value: "warn" },
                         { name: "ERPC_DATABASE_URL", value: getDbUrl("erpc") },
                     ],
                     // Mount all the secrets
@@ -113,7 +114,7 @@ export const erpcInstance = new KubernetesService(
 
         // HPA config
         hpa: {
-            min: 1,
+            min: isProd ? 2 : 1,
             max: 4,
             cpuUtilization: 80,
         },

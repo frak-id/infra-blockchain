@@ -66,6 +66,7 @@ type KubernetesServiceArgs = {
     ingress?: {
         host: Input<string>;
         tlsSecretName: Input<string>;
+        additionalHosts?: string[];
     };
 
     // Info for the service monitor
@@ -257,6 +258,33 @@ export class KubernetesService extends ComponentResource {
             );
         }
 
+        // Mapper for the ingress rules
+        const hostToRule = (host: Input<string>) => ({
+            host,
+            http: {
+                paths: [
+                    {
+                        path: "/",
+                        pathType: "Prefix",
+                        backend: {
+                            service: {
+                                name: this.service?.metadata?.name ?? "",
+                                port: { number: 80 },
+                            },
+                        },
+                    },
+                ],
+            },
+        });
+        const rules = [
+            hostToRule(this.args.ingress.host),
+            ...(this.args.ingress.additionalHosts?.map(hostToRule) ?? []),
+        ];
+        const hosts = [
+            this.args.ingress.host,
+            ...(this.args.ingress.additionalHosts ?? []),
+        ];
+
         return new k8s.networking.v1.Ingress(
             `${this.name}Ingress`,
             {
@@ -274,31 +302,10 @@ export class KubernetesService extends ComponentResource {
                 },
                 spec: {
                     ingressClassName: "nginx",
-                    rules: [
-                        {
-                            host: this.args.ingress.host,
-                            http: {
-                                paths: [
-                                    {
-                                        path: "/",
-                                        pathType: "Prefix",
-                                        backend: {
-                                            service: {
-                                                name: this.service.metadata
-                                                    .name,
-                                                port: {
-                                                    number: 80, // Assuming the main port is always 80
-                                                },
-                                            },
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
+                    rules: rules,
                     tls: [
                         {
-                            hosts: [this.args.ingress.host],
+                            hosts,
                             secretName: this.args.ingress.tlsSecretName,
                         },
                     ],
