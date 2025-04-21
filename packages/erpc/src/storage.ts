@@ -29,7 +29,7 @@ const connectors = [
         id: "memory-unfinalized",
         driver: "memory",
         memory: {
-            // max 4k items for unfinalized cache
+            // max 4k items for un-finalized cache
             maxItems: 4_096,
         },
     },
