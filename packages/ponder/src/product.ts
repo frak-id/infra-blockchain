@@ -14,15 +14,24 @@ ponder.on("ProductRegistry:ProductMinted", async ({ event, context }) => {
     });
 
     // Create the product
-    await context.db.insert(productTable).values({
-        id: event.args.productId,
-        domain: event.args.domain,
-        productTypes: event.args.productTypes,
-        name: bytesToString(event.args.name),
-        createTimestamp: event.block.timestamp,
-        metadataUrl,
-        lastUpdateBlock: event.block.number,
-    });
+    await context.db
+        .insert(productTable)
+        .values({
+            id: event.args.productId,
+            domain: event.args.domain,
+            productTypes: event.args.productTypes,
+            name: bytesToString(event.args.name),
+            createTimestamp: event.block.timestamp,
+            metadataUrl,
+            lastUpdateBlock: event.block.number,
+        })
+        .onConflictDoUpdate((current) => ({
+            name: bytesToString(event.args.name),
+            productTypes: event.args.productTypes,
+            lastUpdateTimestamp: event.block.timestamp,
+            metadataUrl: metadataUrl ?? current.metadataUrl,
+            lastUpdateBlock: event.block.number,
+        }));
 });
 
 ponder.on("ProductRegistry:ProductUpdated", async ({ event, context }) => {
