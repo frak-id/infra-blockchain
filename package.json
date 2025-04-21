@@ -16,19 +16,19 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@pulumi/aws": "^6.74.0",
+    "@pulumi/aws": "^6.77.1",
     "@pulumi/docker": "^4.6.2",
-    "@pulumi/docker-build": "^0.0.10",
-    "@pulumi/gcp": "^8.24.0",
-    "@pulumi/kubernetes": "^4.22.1",
-    "@pulumi/pulumi": "^3.159.0",
-    "@types/aws-lambda": "8.10.147",
+    "@pulumi/docker-build": "^0.0.11",
+    "@pulumi/gcp": "^8.27.0",
+    "@pulumi/kubernetes": "^4.22.2",
+    "@pulumi/pulumi": "^3.163.0",
+    "@types/aws-lambda": "8.10.149",
     "@types/folder-hash": "^4.0.4",
-    "@types/node": "^22.13.14",
+    "@types/node": "^22.14.1",
     "folder-hash": "^4.1.1",
-    "npm-check-updates": "^17.1.16",
-    "sst": "3.9.15",
-    "typescript": "^5.8.2"
+    "npm-check-updates": "^18.0.0",
+    "sst": "3.13.14",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18.14"
