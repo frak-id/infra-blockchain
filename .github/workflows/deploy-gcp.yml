@@ -96,7 +96,7 @@ jobs:
         run: |
           bun sst install
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            bun run deploy-gcp:production
+            bun run deploy-gcp:prod
           else
             bun run deploy-gcp:staging
           fi
