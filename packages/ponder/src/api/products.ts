@@ -16,6 +16,10 @@ export const productRoutes = new Elysia({
     prefix: "/products",
 })
     /**
+     * Get all products
+     */
+    .get("", () => db.select().from(productTable))
+    /**
      * Get all the product administrators
      */
     .get(
