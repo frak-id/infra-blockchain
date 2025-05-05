@@ -64,8 +64,7 @@ const cachePolicies = [
         method: "*",
         finality: DataFinalityStateUnfinalized,
         empty: CacheEmptyBehaviorIgnore,
-        // 2sec in nanoseconds
-        ttl: 2_000_000_000,
+        ttl: "2s",
         maxItemSize: "20kb",
     },
     // Cache realtime data for 2sec on the memory on arbitrum
@@ -75,8 +74,7 @@ const cachePolicies = [
         method: "*",
         finality: DataFinalityStateRealtime,
         empty: CacheEmptyBehaviorIgnore,
-        // 2sec in nanoseconds
-        ttl: 2_000_000_000,
+        ttl: "2s",
     },
     // Cache realtime data for 30sec on arbitrum sepolia
     {
@@ -85,8 +83,7 @@ const cachePolicies = [
         method: "*",
         finality: DataFinalityStateRealtime,
         empty: CacheEmptyBehaviorIgnore,
-        // 30sec in nanoseconds
-        ttl: 30_000_000_000,
+        ttl: "30s",
     },
 ] as const satisfies CachePolicyConfig[];
 
