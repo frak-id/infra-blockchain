@@ -24,7 +24,7 @@ const isProd = process.env.STAGE === "production";
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: [envioProvider, isProd ? freeRpcProvider : undefined],
+    providers: isProd ? [envioProvider, freeRpcProvider] : [envioProvider],
     upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     networkDefaults: {
         failsafe: {
