@@ -15,6 +15,8 @@ import {
     pimlicoProvider,
 } from "./upstreams";
 
+const isProd = process.env.STAGE === "production";
+
 /**
  * The ponder rpc project
  *  - indexing only on envio + dwelir + blockPi
@@ -22,14 +24,8 @@ import {
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: [envioProvider, freeRpcProvider],
-    upstreams: [
-        dwelirArbUpstream,
-        dwelirArbSepoliaUpstream,
-        // block pi invalid
-        // blockPiArbUpstream,
-        // blockPiArbSepoliaUpstream,
-    ],
+    providers: [envioProvider, isProd ? freeRpcProvider : undefined],
+    upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     networkDefaults: {
         failsafe: {
             retry: {

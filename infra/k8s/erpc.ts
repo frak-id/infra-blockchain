@@ -67,6 +67,7 @@ export const erpcInstance = new KubernetesService(
                     env: [
                         { name: "ERPC_LOG_LEVEL", value: "warn" },
                         { name: "ERPC_DATABASE_URL", value: getDbUrl("erpc") },
+                        { name: "STAGE", value: normalizedStageName },
                     ],
                     // Mount all the secrets
                     envFrom: [
