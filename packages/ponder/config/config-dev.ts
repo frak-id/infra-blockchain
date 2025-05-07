@@ -9,6 +9,4 @@ export default createEnvConfig({
         deploymentBlock: 86607902,
     },
     networkKey: "arbitrumSepolia",
-    // Limit the dev env to at most 10 requests per second
-    maxRequestsPerSecond: 10,
 });

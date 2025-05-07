@@ -83,7 +83,7 @@ const cachePolicies = [
         method: "*",
         finality: DataFinalityStateRealtime,
         empty: CacheEmptyBehaviorIgnore,
-        ttl: "30s",
+        ttl: "5s",
     },
 ] as const satisfies CachePolicyConfig[];
 
