@@ -14,8 +14,7 @@ import {
     freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
-
-const isProd = process.env.STAGE === "production";
+import { isProd } from "./utils";
 
 /**
  * The ponder rpc project

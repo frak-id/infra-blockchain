@@ -26,36 +26,41 @@ const connectors = [
         },
     },
     {
+        id: "memory-finalized",
+        driver: "memory",
+        memory: { maxItems: 4_096 },
+    },
+    {
         id: "memory-unfinalized",
         driver: "memory",
-        memory: {
-            // max 4k items for un-finalized cache
-            maxItems: 4_096,
-        },
+        memory: { maxItems: 4_096 },
     },
     {
         id: "memory-realtime",
         driver: "memory",
-        memory: {
-            // Max 4k items for realtime cache
-            maxItems: 4_096,
-        },
+        memory: { maxItems: 4_096 },
     },
 ] as const satisfies ConnectorConfig[];
 
 /**
  * Define the cache policies we will use
- *  todo: Should check with 4337 userOpGas price if it play nicely
- *  todo: Also find a way to cache 4337 related et_getCode method for longer period in memory? Only if non empty maybe?
  */
 const cachePolicies = [
-    // Cache all finalized data in the pg database
+    // Cache all the heavy finalized data in the pg database
     {
         connector: "pg-main",
+        network: "*",
+        method: "eth_getLogs | eth_getBlockBy* | eth_getTransactionReceipt",
+        finality: DataFinalityStateFinalized,
+        empty: CacheEmptyBehaviorAllow,
+    },
+    {
+        connector: "memory-finalized",
         network: "*",
         method: "*",
         finality: DataFinalityStateFinalized,
         empty: CacheEmptyBehaviorAllow,
+        ttl: "6h",
     },
     // Cache not finalized data for 2sec in the memory
     {
