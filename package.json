@@ -4,8 +4,6 @@
   "type": "module",
   "scripts": {
     "dev": "sst dev",
-    "deploy:prod": "sst deploy --stage production",
-    "deploy:dev": "sst deploy --stage dev",
     "deploy-gcp:prod": "sst deploy --stage gcp-production",
     "deploy-gcp:staging": "sst deploy --stage gcp-staging",
     "format": "biome check --write .",
