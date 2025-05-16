@@ -14,11 +14,11 @@ export const interactionRoutes = new Elysia()
      */
     .get(
         "/interactions/:wallet",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract wallet
             const wallet = params.wallet as Address;
             if (!isAddress(wallet)) {
-                return error(400, "Invalid wallet address");
+                return status(400, "Invalid wallet address");
             }
 
             // Perform the sql query

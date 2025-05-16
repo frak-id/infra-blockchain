@@ -24,11 +24,11 @@ export const productRoutes = new Elysia({
      */
     .get(
         ":id/administrators",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract the id
             const id = params.id as Hex;
             if (!isHex(id)) {
-                return error(400, "Invalid product id");
+                return status(400, "Invalid product id");
             }
 
             // Perform the sql query
@@ -56,11 +56,11 @@ export const productRoutes = new Elysia({
      */
     .get(
         ":id/banks",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract the id
             const id = params.id as Hex;
             if (!isHex(id)) {
-                return error(400, "Invalid product id");
+                return status(400, "Invalid product id");
             }
 
             // Perform the sql query
@@ -98,7 +98,7 @@ export const productRoutes = new Elysia({
      */
     .get(
         "info",
-        async ({ query, error }) => {
+        async ({ query, status }) => {
             // Extract the product id
             const domain = query.domain;
             let productId = query.productId as Hex | undefined;
@@ -109,7 +109,7 @@ export const productRoutes = new Elysia({
             }
 
             if (!productId || !isHex(productId)) {
-                return error(403, {
+                return status(403, {
                     msg: "Invalid product id",
                     productId,
                     domain,
@@ -125,7 +125,7 @@ export const productRoutes = new Elysia({
 
             // If not found, early exit
             if (!product) {
-                return error(404, {
+                return status(404, {
                     msg: "Product not found",
                     productId,
                     domain,

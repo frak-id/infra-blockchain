@@ -19,11 +19,11 @@ export const adminRoutes = new Elysia({
      */
     .get(
         "/:wallet/products",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract wallet
             const wallet = params.wallet as Address;
             if (!isAddress(wallet)) {
-                return error(400, "Invalid wallet address");
+                return status(400, "Invalid wallet address");
             }
 
             // Perform the sql query
@@ -54,11 +54,11 @@ export const adminRoutes = new Elysia({
      */
     .get(
         "/:wallet/campaigns",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract wallet
             const wallet = params.wallet as Address;
             if (!isAddress(wallet)) {
-                return error(400, "Invalid wallet address");
+                return status(400, "Invalid wallet address");
             }
 
             // Perform the sql query
@@ -96,11 +96,11 @@ export const adminRoutes = new Elysia({
      */
     .get(
         "/:wallet/campaignsStats",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract wallet
             const wallet = params.wallet as Address;
             if (!isAddress(wallet)) {
-                return error(400, "Invalid wallet address");
+                return status(400, "Invalid wallet address");
             }
 
             // Perform the sql query

@@ -82,11 +82,11 @@ export const membersRoutes = new Elysia({
      */
     .post(
         "/:productAdmin",
-        async ({ params, body, error }) => {
+        async ({ params, body, status }) => {
             // Extract wallet
             const wallet = params.productAdmin as Address;
             if (!isAddress(wallet)) {
-                return error(400, "Invalid productAdmin address");
+                return status(400, "Invalid productAdmin address");
             }
 
             // Get the request params
@@ -192,7 +192,7 @@ export const membersRoutes = new Elysia({
                 };
                 const orderByField = sortFieldMap[sort.by];
                 if (!orderByField) {
-                    return error(400, "Invalid sort field");
+                    return status(400, "Invalid sort field");
                 }
                 membersQuery.orderBy(
                     sort.order === "asc"
