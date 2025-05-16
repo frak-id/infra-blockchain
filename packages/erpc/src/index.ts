@@ -14,6 +14,7 @@ import {
     freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
+import { isProd } from "./utils";
 
 /**
  * The ponder rpc project
@@ -22,14 +23,8 @@ import {
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: [envioProvider, freeRpcProvider],
-    upstreams: [
-        dwelirArbUpstream,
-        dwelirArbSepoliaUpstream,
-        // block pi invalid
-        // blockPiArbUpstream,
-        // blockPiArbSepoliaUpstream,
-    ],
+    providers: isProd ? [envioProvider, freeRpcProvider] : [envioProvider],
+    upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     networkDefaults: {
         failsafe: {
             retry: {

@@ -1,3 +1,23 @@
+FROM golang:1.23-alpine AS erpc-builder
+RUN apk add --no-cache git
+
+ARG ERPC_VERSION=0.0.46
+RUN git clone https://github.com/erpc/erpc.git -b ${ERPC_VERSION} --depth 1 /erpc
+WORKDIR /erpc
+
+# Update the Sonic library so we can fix the support for ARM 64
+RUN go get github.com/bytedance/sonic@v1.13.2 
+RUN go mod download
+
+# Build config
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=arm64
+
+# Build the final binary
+RUN LDFLAGS="-w -s -X common.ErpcVersion=${ERPC_VERSION} -X common.ErpcCommitSha=$(git rev-parse --short HEAD)"; \
+    go build -v -ldflags="$LDFLAGS" -a -installsuffix cgo -o /build/erpc ./cmd/erpc/main.go
+
 # Config bundler step
 FROM oven/bun:latest AS bundler
 
@@ -7,17 +27,18 @@ RUN rm -rf /tmp/dev || true && mkdir -p /tmp/dev
 # Bundle everything in a single erpc.js file
 COPY . /tmp/dev
 RUN cd /tmp/dev && bun install --production
-RUN cd /tmp/dev && bun build --outfile ./erpc.js --minify --target node --external "@erpc-cloud/config" src/index.ts
+RUN cd /tmp/dev && bun build --outfile ./erpc.js --minify --target node src/index.ts
 
-# Final image
-#FROM erpc-dev AS final
-FROM ghcr.io/erpc/erpc:0.0.43 AS final
+# Final stage
+FROM gcr.io/distroless/static-debian12:nonroot AS final
 
-# Install curl, will be used for healthcheck
-RUN apt-get update && apt-get install -y curl
-
+# Copy the erpc binay
+COPY --from=erpc-builder /build/erpc /erpc
 # Copy the bundled config
-COPY --from=bundler ./tmp/dev/erpc.js /root/erpc.js
+COPY --from=bundler ./tmp/dev/erpc.js /erpc.js
 
-# Run the server
-CMD ["./erpc-server"]
+# Expose ports
+EXPOSE 4000 4001 6060
+
+ENTRYPOINT ["/erpc"]
+CMD ["--config", "/erpc.js"]

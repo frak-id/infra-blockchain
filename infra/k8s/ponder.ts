@@ -74,6 +74,7 @@ export const ponderInstance = new KubernetesService(
                             name: "INTERNAL_RPC_URL",
                             value: $interpolate`http://erpc-${normalizedStageName}-service.${blockchainNamespace.metadata.name}:80/ponder-rpc/evm`,
                         },
+                        { name: "STAGE", value: normalizedStageName },
                     ],
                     // Mount all the secrets
                     envFrom: [

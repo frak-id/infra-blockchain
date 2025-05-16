@@ -11,7 +11,7 @@ export const campaignRoutes = new Elysia()
      */
     .get(
         "/campaign",
-        async ({ query, error }) => {
+        async ({ query, status }) => {
             // Extract wallet
             const campaignAddress = query.campaignAddress as
                 | Address
@@ -21,10 +21,10 @@ export const campaignRoutes = new Elysia()
                 (campaignAddress && !isAddress(campaignAddress)) ||
                 (productId && !isHex(productId))
             ) {
-                return error(400, "Invalid campaign or product");
+                return status(400, "Invalid campaign or product");
             }
             if (!campaignAddress && !productId) {
-                return error(400, "Missing campaign or product params");
+                return status(400, "Missing campaign or product params");
             }
 
             // Perform the sql query

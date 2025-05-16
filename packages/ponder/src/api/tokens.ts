@@ -25,11 +25,11 @@ export const tokenRoutes = new Elysia({
      */
     .get(
         "/:address",
-        async ({ params, error }) => {
+        async ({ params, status }) => {
             // Extract token address
             const address = params.address as Address;
             if (!isAddress(address)) {
-                return error(400, "Invalid token address");
+                return status(400, "Invalid token address");
             }
 
             // Perform the sql query
