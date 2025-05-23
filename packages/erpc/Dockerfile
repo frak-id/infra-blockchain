@@ -13,11 +13,5 @@ RUN cd /tmp/dev && bun build --outfile ./erpc.js --minify --target node --extern
 #FROM erpc-dev AS final
 FROM ghcr.io/erpc/erpc:0.0.47 AS final
 
-# Install curl, will be used for healthcheck
-RUN apt-get update && apt-get install -y curl
-
 # Copy the bundled config
 COPY --from=bundler ./tmp/dev/erpc.js /root/erpc.js
-
-# Run the server
-CMD ["./erpc-server"]
