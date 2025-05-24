@@ -28,17 +28,17 @@ const connectors = [
     {
         id: "memory-finalized",
         driver: "memory",
-        memory: { maxItems: 4_096 },
+        memory: { maxItems: 4_096, maxTotalSize: "200mb" },
     },
     {
         id: "memory-unfinalized",
         driver: "memory",
-        memory: { maxItems: 4_096 },
+        memory: { maxItems: 4_096, maxTotalSize: "50mb" },
     },
     {
         id: "memory-realtime",
         driver: "memory",
-        memory: { maxItems: 4_096 },
+        memory: { maxItems: 4_096, maxTotalSize: "50mb" },
     },
 ] as const satisfies ConnectorConfig[];
 
@@ -46,11 +46,11 @@ const connectors = [
  * Define the cache policies we will use
  */
 const cachePolicies = [
-    // Cache all the heavy finalized data in the pg database
+    // Cache all the light and finalized data in the pg database (we don't store heavy stuff in pg to not lock it)
     {
         connector: "pg-main",
         network: "*",
-        method: "eth_getLogs | eth_getBlockBy* | eth_getTransactionReceipt",
+        method: "eth_getCode | eth_call | eth_getStorageAt",
         finality: DataFinalityStateFinalized,
         empty: CacheEmptyBehaviorAllow,
     },
@@ -72,16 +72,16 @@ const cachePolicies = [
         ttl: "2s",
         maxItemSize: "20kb",
     },
-    // Cache realtime data for 2sec on the memory on arbitrum
+    // Cache realtime data for 1sec on the memory on arbitrum
     {
         connector: "memory-realtime",
         network: "evm:42161",
         method: "*",
         finality: DataFinalityStateRealtime,
         empty: CacheEmptyBehaviorIgnore,
-        ttl: "2s",
+        ttl: "1s",
     },
-    // Cache realtime data for 30sec on arbitrum sepolia
+    // Cache realtime data for 5sec on arbitrum sepolia
     {
         connector: "memory-realtime",
         network: "evm:421614",
