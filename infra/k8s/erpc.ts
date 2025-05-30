@@ -21,25 +21,27 @@ const registry = new gcp.artifactregistry.Repository("erpc-gcr", {
 
 /**
  * Create the erpc image
- * todo: Should migrate to the new `dockerBuild` stuff from pulumi, but facing some issue with credentials
  */
 const registryPath = registry.location.apply(
     (location) =>
         `${location}-docker.pkg.dev/${gcp.config.project}/${repository}`
 );
-const latestTag = registryPath.apply((path) => `${path}/${imageName}:latest`);
-const erpcImage = new docker.Image(
-    imageName,
+const erpcImage = new dockerbuild.Image(
+    "erpc-image",
     {
-        imageName: latestTag,
-        build: {
-            context: path.join($cli.paths.root, "packages", "erpc"),
-            platform: "linux/arm64",
-            args: {
-                NODE_ENV: "production",
-                STAGE: normalizedStageName,
-            },
+        context: {
+            location: path.join($cli.paths.root, "packages", "erpc"),
         },
+        platforms: ["linux/arm64"],
+        buildArgs: {
+            NODE_ENV: "production",
+            STAGE: normalizedStageName,
+        },
+        push: true,
+        tags: registryPath.apply((path) => [
+            `${path}/${imageName}:${process.env.COMMIT_HASH ? `git-${process.env.COMMIT_HASH}` : "local-build"}`,
+            `${path}/${imageName}:latest`,
+        ]),
     },
     {
         dependsOn: [registry],
@@ -62,7 +64,7 @@ export const erpcInstance = new KubernetesService(
             containers: [
                 {
                     name: "erpc",
-                    image: erpcImage.imageName,
+                    image: erpcImage.ref,
                     ports: [{ containerPort: 8080 }, { containerPort: 6060 }],
                     env: [
                         { name: "ERPC_LOG_LEVEL", value: "warn" },

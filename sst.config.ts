@@ -18,7 +18,6 @@ export default $config({
                     project: "frak-main-v1",
                     region: "europe-west1",
                 },
-                docker: "4.7.0",
             },
         };
     },

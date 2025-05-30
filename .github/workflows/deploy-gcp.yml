@@ -43,6 +43,7 @@ jobs:
 
       - name: "🔧 Set up environment variables"
         run: |
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "STAGE=gcp-production" >> $GITHUB_ENV
           else
