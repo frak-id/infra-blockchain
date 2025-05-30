@@ -117,13 +117,6 @@ export const ponderInstance = new KubernetesService(
             ],
         },
 
-        // HPA config
-        hpa: {
-            min: 1,
-            max: 4,
-            cpuUtilization: 80,
-        },
-
         // Ingress config
         ingress: {
             host: `ponder.${baseDomainName}`,

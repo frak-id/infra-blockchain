@@ -38,7 +38,7 @@ export const indexerProjectRateLimits = {
     rules: [
         {
             method: "*",
-            maxCount: 50,
+            maxCount: 200,
             period: "1s",
             waitTime: "5s",
         },
