@@ -52,7 +52,7 @@ export function getPonderEntrypoint(
     ).apply(({ hash }) => hash.substring(0, 8));
 
     // Build the schema name we will use ($stage_date_folderHash)
-    const schemaName = $interpolate`ponder_${normalizedStageName}_${readableDate}_${ponderHash}`;
+    const schemaName = $interpolate`ponder_${normalizedStageName}_${readableDate}_${process.env.COMMIT_HASH ?? "local"}_${ponderHash}`;
 
     // Return the full docker entrypoint command
     return [

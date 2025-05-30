@@ -124,6 +124,4 @@ async function upsertCampaignBank({
         address: token,
         context,
     });
-
-    // Then enrich it with blockchain data
 }
