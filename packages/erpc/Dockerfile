@@ -11,7 +11,7 @@ RUN cd /tmp/dev && bun build --outfile ./erpc.js --minify --target node --extern
 
 # Final image
 #FROM erpc-dev AS final
-FROM ghcr.io/erpc/erpc:0.0.47 AS final
+FROM ghcr.io/erpc/erpc:0.0.49 AS final
 
 # Copy the bundled config
 COPY --from=bundler ./tmp/dev/erpc.js /root/erpc.js
