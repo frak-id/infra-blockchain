@@ -144,11 +144,8 @@ async function increaseCampaignsStats({
     }
 
     // Filter to only get active campaigns during this even
-    const activeCampaigns = campaigns.filter((campaign, index) => {
+    const activeCampaigns = campaigns.filter((_, index) => {
         if (!isActiveDuringInteraction[index]) {
-            console.log(
-                `Campaign ${campaign.id} was not active during the interaction`
-            );
             return false;
         }
         return true;

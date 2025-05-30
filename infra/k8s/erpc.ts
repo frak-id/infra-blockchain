@@ -60,7 +60,7 @@ export const erpcInstance = new KubernetesService(
 
         // Pod config
         pod: {
-            replicas: isProd ? 2 : 1,
+            replicas: 1,
             containers: [
                 {
                     name: "erpc",
@@ -118,8 +118,8 @@ export const erpcInstance = new KubernetesService(
 
         // HPA config
         hpa: {
-            min: isProd ? 2 : 1,
-            max: 4,
+            min: 1,
+            max: isProd ? 4 : 1,
             cpuUtilization: 80,
         },
 
