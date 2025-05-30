@@ -22,25 +22,27 @@ const registry = new gcp.artifactregistry.Repository("ponder-gcr", {
 
 /**
  * Create the ponder image
- * todo: Should migrate to the new `dockerBuild` stuff from pulumi, but facing some issue with credentials
  */
 const registryPath = registry.location.apply(
     (location) =>
         `${location}-docker.pkg.dev/${gcp.config.project}/${repository}`
 );
-const latestTag = registryPath.apply((path) => `${path}/${imageName}:latest`);
-const ponderImage = new docker.Image(
-    imageName,
+const ponderImage = new dockerbuild.Image(
+    "ponder-image",
     {
-        imageName: latestTag,
-        build: {
-            context: path.join($cli.paths.root, "packages", "ponder"),
-            platform: "linux/arm64",
-            args: {
-                NODE_ENV: "production",
-                STAGE: normalizedStageName,
-            },
+        context: {
+            location: path.join($cli.paths.root, "packages", "ponder"),
         },
+        platforms: ["linux/arm64"],
+        buildArgs: {
+            NODE_ENV: "production",
+            STAGE: normalizedStageName,
+        },
+        push: true,
+        tags: registryPath.apply((path) => [
+            `${path}/${imageName}:${process.env.COMMIT_HASH ? `git-${process.env.COMMIT_HASH}` : "local-build"}`,
+            `${path}/${imageName}:latest`,
+        ]),
     },
     {
         dependsOn: [registry],
@@ -62,7 +64,7 @@ export const ponderInstance = new KubernetesService(
             containers: [
                 {
                     name: "ponder",
-                    image: ponderImage.imageName,
+                    image: ponderImage.ref,
                     ports: [{ containerPort: 42069 }],
                     command: getPonderEntrypoint("indexer"),
                     env: [

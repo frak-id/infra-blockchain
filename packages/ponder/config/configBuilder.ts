@@ -34,7 +34,7 @@ import {
     productRegistryAbi,
 } from "../abis/registryAbis";
 
-type EnvNetworkConfig = {
+type EvmChainConfig = {
     chainId: number;
     deploymentBlock?: number;
 };
@@ -52,20 +52,20 @@ const oldAddresses = {
 /**
  * Create a env gated config
  */
-export function createEnvConfig<NetworkKey extends string>({
-    network,
-    networkKey,
+export function createEnvConfig<ChainKey extends string>({
+    chain,
+    chainKey,
     pollingInterval,
     maxRequestsPerSecond,
 }: {
-    network: EnvNetworkConfig;
-    networkKey: NetworkKey;
+    chain: EvmChainConfig;
+    chainKey: ChainKey;
     pollingInterval?: number;
     maxRequestsPerSecond?: number;
 }) {
-    const contractNetworkConfig = {
-        [networkKey]: {
-            startBlock: network.deploymentBlock,
+    const contractChainConfig = {
+        [chainKey]: {
+            startBlock: chain.deploymentBlock,
         },
     } as const;
 
@@ -79,11 +79,11 @@ export function createEnvConfig<NetworkKey extends string>({
             : {
                   kind: "pglite",
               },
-        // networks config
-        networks: {
-            [networkKey]: {
-                chainId: network.chainId,
-                transport: getTransport(network.chainId),
+        // chains config
+        chains: {
+            [chainKey]: {
+                id: chain.chainId,
+                rpc: getTransport(chain.chainId),
                 // Polling interval to 60sec by default
                 pollingInterval: pollingInterval ?? 60_000,
                 // Max request per second
@@ -96,20 +96,20 @@ export function createEnvConfig<NetworkKey extends string>({
             ProductRegistry: {
                 abi: productRegistryAbi,
                 address: deployedAddresses.productRegistry as Address,
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // The product registry
             ProductAdministratorRegistry: {
                 abi: productAdministratorRegistryAbi,
                 address:
                     deployedAddresses.productAdministratorRegistry as Address,
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // The interaction manager
             ProductInteractionManager: {
                 abi: productInteractionManagerAbi,
                 address: deployedAddresses.productInteractionManager as Address,
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // Every product interactions
             ProductInteraction: {
@@ -131,7 +131,7 @@ export function createEnvConfig<NetworkKey extends string>({
                     ),
                     parameter: "interactionContract",
                 }),
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // The campaign factory
             CampaignsFactory: {
@@ -140,7 +140,7 @@ export function createEnvConfig<NetworkKey extends string>({
                     deployedAddresses.campaignFactory as Address,
                     ...oldAddresses.campaignFactoy,
                 ],
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // Every campaigns
             Campaigns: {
@@ -160,13 +160,13 @@ export function createEnvConfig<NetworkKey extends string>({
                     ),
                     parameter: "campaign",
                 }),
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // The campaign banks factory
             CampaignBanksFactory: {
                 abi: campaignBankFactoryAbi,
                 address: deployedAddresses.campaignBankFactory as Address,
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
             // Every campaign banks
             CampaignBanks: {
@@ -178,7 +178,7 @@ export function createEnvConfig<NetworkKey extends string>({
                     ),
                     parameter: "campaignBank",
                 }),
-                network: contractNetworkConfig,
+                chain: contractChainConfig,
             },
         },
     });
