@@ -1,6 +1,6 @@
 import { ponder } from "ponder:registry";
 import { campaignTable, productInteractionContractTable } from "ponder:schema";
-import { upsertNewCampaign } from "./campaignCreation";
+import { upsertCampaign } from "./campaignCreation";
 
 ponder.on("ProductInteraction:CampaignAttached", async ({ event, context }) => {
     // Find the interaction contract
@@ -16,7 +16,7 @@ ponder.on("ProductInteraction:CampaignAttached", async ({ event, context }) => {
     }
 
     // Get the metadata and create it
-    await upsertNewCampaign({
+    await upsertCampaign({
         address: event.args.campaign,
         blockNumber: event.block.number,
         context,

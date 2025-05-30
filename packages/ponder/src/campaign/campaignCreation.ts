@@ -1,6 +1,6 @@
 import { type Context, ponder } from "ponder:registry";
 import { affiliationCampaignStatsTable, campaignTable } from "ponder:schema";
-import type { Address } from "viem";
+import { type Address, isAddressEqual, zeroAddress } from "viem";
 import {
     interactionCampaignAbi,
     referralCampaignAbi,
@@ -11,12 +11,26 @@ import {
 } from "../interactions/stats";
 import { bytesToString } from "../utils/format";
 
+const defaultCampaignValues: Omit<
+    typeof campaignTable.$inferInsert,
+    "id" | "lastUpdateBlock"
+> = {
+    type: "0",
+    name: "",
+    version: "0",
+    productId: 0n,
+    isAuthorisedOnBanking: false,
+    attached: false,
+    attachTimestamp: 0n,
+    interactionContractId: zeroAddress,
+};
+
 /**
  * On new campaign creation
  */
 ponder.on("CampaignsFactory:CampaignCreated", async ({ event, context }) => {
     // Upsert the campaign
-    await upsertNewCampaign({
+    await upsertCampaign({
         address: event.args.campaign,
         blockNumber: event.block.number,
         context,
@@ -28,10 +42,10 @@ ponder.on("CampaignsFactory:CampaignCreated", async ({ event, context }) => {
  * @param address
  * @param block
  */
-export async function upsertNewCampaign({
+export async function upsertCampaign({
     address,
     blockNumber,
-    context: { client, db },
+    context,
     onConflictUpdate = {},
 }: {
     address: Address;
@@ -41,16 +55,61 @@ export async function upsertNewCampaign({
 }) {
     const haveUpdates = Object.keys(onConflictUpdate).length > 0;
 
-    // If the campaign already exist, just update it
-    const campaign = await db.find(campaignTable, { id: address });
-    if (campaign) {
-        if (!haveUpdates) return;
+    // Create the campaign
+    const initialQuery = context.db.insert(campaignTable).values({
+        ...defaultCampaignValues,
+        id: address,
+        lastUpdateBlock: blockNumber,
+        ...onConflictUpdate,
+    });
 
-        await db
-            .update(campaignTable, {
-                id: address,
-            })
-            .set(onConflictUpdate);
+    // Add the updates properties if needed
+    if (haveUpdates) {
+        await initialQuery.onConflictDoUpdate(onConflictUpdate);
+    } else {
+        await initialQuery.onConflictDoNothing();
+    }
+
+    // Then enrich the campaign if needed
+    try {
+        await enrichCampaignIfNeeded({
+            address,
+            blockNumber,
+            context,
+        });
+    } catch (error) {
+        console.error(
+            `[Campaign] Failed to enrich campaign ${address} on block ${blockNumber}`,
+            {
+                error,
+            }
+        );
+    }
+}
+
+/**
+ * Enrich a fresh campaign with the metadata and config
+ */
+async function enrichCampaignIfNeeded({
+    address,
+    blockNumber,
+    context: { client, db },
+}: {
+    address: Address;
+    blockNumber: bigint;
+    context: Context;
+}) {
+    const campaign = await db.find(campaignTable, { id: address });
+    // Skipping because not yet inserted
+    if (!campaign) {
+        console.error(
+            `[Campaign] Can't enrich campaign, not found: ${address}`
+        );
+        return;
+    }
+
+    // Skipping because we already enriched it
+    if (!isAddressEqual(campaign.interactionContractId, zeroAddress)) {
         return;
     }
 
@@ -83,39 +142,33 @@ export async function upsertNewCampaign({
         linkResult.status !== "success"
     ) {
         console.error(
-            `Failed to get metadata/linkResult for campaign ${address}`,
-            { blockNumber }
+            `[Campaign] Failed to get metadata/linkResult for campaign ${address} on block ${blockNumber}`
         );
         return;
     }
+    if (configResult.status !== "success") {
+        console.error(
+            `[Campaign] Failed to get config for campaign ${address} on block ${blockNumber}`
+        );
+        return;
+    }
+
     const [type, version, name] = metadataResult.result;
     const [productId, interactionContract] = linkResult.result;
     const formattedName = bytesToString(name);
 
-    // Create the campaign
-    const initialQuery = db.insert(campaignTable).values({
-        id: address,
+    // Update the campaign
+    await db.update(campaignTable, { id: address }).set({
         type,
         name: formattedName,
         version,
         productId,
         interactionContractId: interactionContract,
-        attached: false,
-        attachTimestamp: 0n,
         bankingContractId:
             configResult.status === "success"
                 ? configResult.result[2]
                 : undefined,
-        isAuthorisedOnBanking: false,
-        lastUpdateBlock: blockNumber,
-        ...onConflictUpdate,
     });
-
-    if (haveUpdates) {
-        await initialQuery.onConflictDoUpdate(onConflictUpdate);
-    } else {
-        await initialQuery.onConflictDoNothing();
-    }
 
     // Upsert press campaign stats if it's the right type
     if (affiliationCampaignTypes.includes(type)) {

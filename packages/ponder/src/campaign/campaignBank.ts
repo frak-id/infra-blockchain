@@ -4,6 +4,7 @@ import { bankingContractTable, campaignTable } from "ponder:schema";
 import { type Address, isAddressEqual } from "viem";
 import { campaignBankAbi } from "../../abis/campaignAbis";
 import { upsertTokenIfNeeded } from "../token";
+import { upsertCampaign } from "./campaignCreation";
 
 ponder.on(
     "CampaignBanksFactory:CampaignBankCreated",
@@ -18,9 +19,9 @@ ponder.on(
 
 ponder.on(
     "CampaignBanks:CampaignAuthorisationUpdated",
-    async ({ event, context: { db } }) => {
+    async ({ event, context }) => {
         // Find the interaction contract
-        const campaign = await db.find(campaignTable, {
+        const campaign = await context.db.find(campaignTable, {
             id: event.args.campaign,
         });
         if (!campaign?.bankingContractId) {
@@ -38,14 +39,15 @@ ponder.on(
         }
 
         // Update the campaign
-        await db
-            .update(campaignTable, {
-                id: event.args.campaign,
-            })
-            .set({
+        await upsertCampaign({
+            address: event.args.campaign,
+            blockNumber: event.block.number,
+            context,
+            onConflictUpdate: {
                 isAuthorisedOnBanking: event.args.isAllowed,
                 lastUpdateBlock: event.block.number,
-            });
+            },
+        });
     }
 );
 
@@ -92,24 +94,12 @@ async function upsertCampaignBank({
     }
 
     // If not found, find the token of this campaign
-    const [[productId, token], isDistributing] = await context.client.multicall(
-        {
-            contracts: [
-                {
-                    abi: campaignBankAbi,
-                    address,
-                    functionName: "getConfig",
-                } as const,
-                {
-                    abi: campaignBankAbi,
-                    address,
-                    functionName: "isDistributionEnabled",
-                } as const,
-            ],
-            allowFailure: false,
-            blockNumber: blockNumber,
-        }
-    );
+    const [productId, token] = await context.client.readContract({
+        abi: campaignBankAbi,
+        address,
+        functionName: "getConfig",
+        blockNumber: blockNumber,
+    });
 
     // And upsert it
     const initialQuery = context.db.insert(bankingContractTable).values({
@@ -118,7 +108,7 @@ async function upsertCampaignBank({
         totalDistributed: 0n,
         totalClaimed: 0n,
         productId,
-        isDistributing,
+        isDistributing: false,
         ...onConflictUpdate,
     });
 
@@ -134,4 +124,6 @@ async function upsertCampaignBank({
         address: token,
         context,
     });
+
+    // Then enrich it with blockchain data
 }
