@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "viem": "^2.30.5",
+    "viem": "^2.30.6",
     "sst": "3.17.0",
     "typescript": "^5.8.3"
   },

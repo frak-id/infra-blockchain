@@ -1,14 +1,6 @@
 import { createConfig, mergeAbis } from "ponder";
 import { factory } from "ponder";
-import {
-    http,
-    type Address,
-    type PublicRpcSchema,
-    type Transport,
-    type TransportConfig,
-    createTransport,
-    parseAbiItem,
-} from "viem";
+import { type Address, parseAbiItem } from "viem";
 import * as deployedAddresses from "../abis/addresses.json";
 import {
     affiliationFixedCampaignAbi,
@@ -83,7 +75,7 @@ export function createEnvConfig<ChainKey extends string>({
         chains: {
             [chainKey]: {
                 id: chain.chainId,
-                rpc: getTransport(chain.chainId),
+                rpc: getTransportUrl(chain.chainId),
                 // Polling interval to 60sec by default
                 pollingInterval: pollingInterval ?? 60_000,
                 // Max request per second
@@ -184,73 +176,12 @@ export function createEnvConfig<ChainKey extends string>({
     });
 }
 
-type GetLogsRpcType = Extract<
-    PublicRpcSchema[number],
-    { Method: "eth_getLogs" }
->;
-
-/**
- * Custom transport with some failsafe options specific for envio upstream
- * @param initialTransport
- */
-function safeClient(initialTransport: Transport): Transport {
-    return (args) => {
-        const transport = initialTransport(args);
-
-        return createTransport({
-            key: "safeClient",
-            name: "Safe Indexing Client",
-            type: "safeClient",
-            async request(body) {
-                // If that's an eth_getLogs request, with a blockHash parameter, encore we got no block leak in the response (and if that's the case, filter out the logs with a different blockHash)
-                if (
-                    body.method === "eth_getLogs" &&
-                    Array.isArray(body.params) &&
-                    (body.params as GetLogsRpcType["Parameters"])?.[0]
-                        ?.blockHash
-                ) {
-                    const requestedBlockHash = (
-                        body.params as GetLogsRpcType["Parameters"]
-                    )?.[0]?.blockHash;
-                    if (!requestedBlockHash) {
-                        throw new Error("Missing blockHash parameter");
-                    }
-
-                    // Perform the request
-                    const response = (await transport.request(
-                        body
-                    )) as GetLogsRpcType["ReturnType"];
-
-                    // Filter out logs with a different blockHash
-                    //  envio can leak parent / child block logs in the response
-                    const filteredResponse = response.filter(
-                        (log) => log.blockHash === requestedBlockHash
-                    );
-                    if (filteredResponse.length !== response.length) {
-                        console.log(
-                            `Filtered out ${
-                                response.length - filteredResponse.length
-                            } logs cause of mismatching blockHash, requested: ${requestedBlockHash}`
-                        );
-                    }
-                    return filteredResponse;
-                }
-
-                // Otherwise, simple request
-                return transport.request(body);
-            },
-            retryCount: args.retryCount,
-            timeout: args.timeout,
-        } as TransportConfig);
-    };
-}
-
 /**
  * Get an transport for the given chain id
  * @param chainId
  * @returns
  */
-function getTransport(chainId: number) {
+function getTransportUrl(chainId: number) {
     // Get our erpc instance transport
     const erpcInternalUrl = process.env.INTERNAL_RPC_URL;
     if (!erpcInternalUrl) {
@@ -258,9 +189,5 @@ function getTransport(chainId: number) {
     }
 
     // Return the base client wrapper in a cooldown one, aiming to slow down real time indexing on arbitrum / arbitrum sepolia
-    return safeClient(
-        http(
-            `${erpcInternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`
-        )
-    );
+    return `${erpcInternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`;
 }
