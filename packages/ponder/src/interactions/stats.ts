@@ -169,8 +169,9 @@ function updateStats(
     current: typeof affiliationCampaignStatsTable.$inferSelect,
     increments: StatsIncrementsParams
 ) {
-    const updatedStats = {
-        ...current,
+    const updatedStats: Partial<
+        typeof affiliationCampaignStatsTable.$inferSelect
+    > = {
         totalInteractions: current.totalInteractions + 1n,
     };
 
