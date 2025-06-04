@@ -40,11 +40,10 @@ const ponderProject = {
                 maxCount: 3,
             },
         },
-        // @ts-ignore
         evm: {
             integrity: {
-                enforceGetLogsBlockRange: false,
-                enforceHighestBlock: false,
+                enforceGetLogsBlockRange: true,
+                enforceHighestBlock: true,
             },
         },
     },
