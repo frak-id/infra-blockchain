@@ -12,6 +12,9 @@ if (!process.env.DRPC_API_KEY) {
 if (!process.env.DWELIR_API_KEY) {
     throw new Error("Missing DWELIR_API_KEY environment variable");
 }
+if (!process.env.ENVIO_API_KEY) {
+    throw new Error("Missing ENVIO_API_KEY environment variable");
+}
 
 /**
  * Method specifics for for the smart wallets
@@ -39,6 +42,9 @@ export const alchemyProvider = {
 
 export const envioProvider = {
     vendor: "envio",
+    settings: {
+        apiKey: process.env.ENVIO_API_KEY,
+    }
 } as const satisfies ProviderConfig;
 
 export const drpcProvider = {
