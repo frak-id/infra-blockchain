@@ -41,6 +41,9 @@ type KubernetesServiceArgs = {
 
         // Definition of each container
         containers: Input<inputs.core.v1.Container>[];
+
+        // Ressources for this pod
+        resources?: Input<kubernetes.types.input.core.v1.ResourceRequirements>;
     };
 
     // Info for the service
@@ -163,18 +166,7 @@ export class KubernetesService extends ComponentResource {
                         metadata: { labels: this.labels },
                         spec: {
                             containers: this.args.pod.containers,
-                            // We are always deploying on arm64
-                            nodeSelector: {
-                                "kubernetes.io/arch": "arm64",
-                                // "cloud.google.com/gke-nodepool": "application",
-                            },
-                            tolerations: [
-                                {
-                                    key: "dedicated",
-                                    value: `app-${normalizedStageName}`,
-                                    effect: "NoSchedule",
-                                },
-                            ],
+                            resources: this.args.pod.resources,
                         },
                     },
                 },

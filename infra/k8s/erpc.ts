@@ -32,7 +32,7 @@ const erpcImage = new dockerbuild.Image(
         context: {
             location: path.join($cli.paths.root, "packages", "erpc"),
         },
-        platforms: ["linux/arm64"],
+        platforms: ["linux/amd64"],
         buildArgs: {
             NODE_ENV: "production",
             STAGE: normalizedStageName,
@@ -98,6 +98,11 @@ export const erpcInstance = new KubernetesService(
                         periodSeconds: 10,
                         timeoutSeconds: 3,
                         failureThreshold: 2,
+                    },
+                    // Ressources per container
+                    resources: {
+                        limits: { cpu: "50m", memory: "1024Mi" },
+                        requests: { cpu: "10m", memory: "256Mi" },
                     },
                 },
             ],

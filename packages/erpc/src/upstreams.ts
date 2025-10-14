@@ -44,7 +44,7 @@ export const envioProvider = {
     vendor: "envio",
     settings: {
         apiKey: process.env.ENVIO_API_KEY,
-    }
+    },
 } as const satisfies ProviderConfig;
 
 export const drpcProvider = {
