@@ -12,7 +12,7 @@ RUN go mod download
 # Build config
 ENV CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=arm64
+    GOARCH=amd64
 
 # Build the final binary
 RUN LDFLAGS="-w -s -X common.ErpcVersion=${ERPC_VERSION} -X common.ErpcCommitSha=$(git rev-parse --short HEAD)"; \

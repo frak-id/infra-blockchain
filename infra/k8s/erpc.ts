@@ -32,7 +32,7 @@ const erpcImage = new dockerbuild.Image(
         context: {
             location: path.join($cli.paths.root, "packages", "erpc"),
         },
-        platforms: ["linux/arm64"],
+        platforms: ["linux/amd64"],
         buildArgs: {
             NODE_ENV: "production",
             STAGE: normalizedStageName,
@@ -60,7 +60,6 @@ export const erpcInstance = new KubernetesService(
 
         // Pod config
         pod: {
-            replicas: isProd ? 2 : 1,
             containers: [
                 {
                     name: "erpc",
@@ -99,8 +98,23 @@ export const erpcInstance = new KubernetesService(
                         timeoutSeconds: 3,
                         failureThreshold: 2,
                     },
+                    // Ressources per container
+                    resources: {
+                        limits: { cpu: "50m", memory: "1024Mi" },
+                        requests: { cpu: "10m", memory: "512Mi" },
+                    },
                 },
             ],
+        },
+
+        // Pod auto scaling
+        hpa: isProd ? {
+            min: 1,
+            max: 4,
+            cpuUtilization: 95,
+        } : {
+            min: 1,
+            max: 1,
         },
 
         // Service config

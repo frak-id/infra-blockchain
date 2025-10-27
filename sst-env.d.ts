@@ -25,6 +25,10 @@ declare module "sst" {
             type: "sst.sst.Secret";
             value: string;
         };
+        ENVIO_API_KEY: {
+            type: "sst.sst.Secret";
+            value: string;
+        };
         NEXUS_RPC_SECRET: {
             type: "sst.sst.Secret";
             value: string;

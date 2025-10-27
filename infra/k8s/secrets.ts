@@ -23,6 +23,7 @@ export const erpcSecrets = new kubernetes.core.v1.Secret("erpc-secrets", {
         DWELIR_API_KEY: new sst.Secret("DWELIR_API_KEY").value,
         PONDER_RPC_SECRET: ponderRpcSecret.value,
         NEXUS_RPC_SECRET: new sst.Secret("NEXUS_RPC_SECRET").value,
+        ENVIO_API_KEY: new sst.Secret("ENVIO_API_KEY").value,
     },
 });
 
