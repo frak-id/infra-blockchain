@@ -60,7 +60,6 @@ export const erpcInstance = new KubernetesService(
 
         // Pod config
         pod: {
-            replicas: isProd ? 2 : 1,
             containers: [
                 {
                     name: "erpc",
@@ -102,10 +101,20 @@ export const erpcInstance = new KubernetesService(
                     // Ressources per container
                     resources: {
                         limits: { cpu: "50m", memory: "1024Mi" },
-                        requests: { cpu: "10m", memory: "256Mi" },
+                        requests: { cpu: "10m", memory: "512Mi" },
                     },
                 },
             ],
+        },
+
+        // Pod auto scaling
+        hpa: isProd ? {
+            min: 1,
+            max: 4,
+            cpuUtilization: 95,
+        } : {
+            min: 1,
+            max: 1,
         },
 
         // Service config
