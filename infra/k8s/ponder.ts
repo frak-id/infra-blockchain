@@ -125,6 +125,25 @@ export const ponderInstance = new KubernetesService(
         ingress: {
             host: `ponder.${baseDomainName}`,
             tlsSecretName: "ponder-tls",
+            // Performance optimizations for rpc
+            customAnnotations: {
+                // Connection pooling for ingress -> backend pod connections
+                "nginx.ingress.kubernetes.io/upstream-keepalive-connections":
+                    "32",
+                "nginx.ingress.kubernetes.io/upstream-keepalive-requests":
+                    "1000",
+                "nginx.ingress.kubernetes.io/upstream-keepalive-timeout": "60",
+                // Optimized timeouts for API responses
+                "nginx.ingress.kubernetes.io/proxy-connect-timeout": "5",
+                "nginx.ingress.kubernetes.io/proxy-send-timeout": "60",
+                "nginx.ingress.kubernetes.io/proxy-read-timeout": "60",
+                // Buffer settings for API responses
+                "nginx.ingress.kubernetes.io/proxy-buffering": "on",
+                "nginx.ingress.kubernetes.io/proxy-buffers-number": "8",
+                "nginx.ingress.kubernetes.io/proxy-buffer-size": "16k",
+                "nginx.ingress.kubernetes.io/proxy-busy-buffers-size": "32k",
+                "nginx.ingress.kubernetes.io/proxy-body-size": "10m",
+            },
         },
 
         // ServiceMonitor config

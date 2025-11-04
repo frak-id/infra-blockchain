@@ -108,14 +108,13 @@ export const erpcInstance = new KubernetesService(
         },
 
         // Pod auto scaling
-        hpa: isProd ? {
-            min: 1,
-            max: 4,
-            cpuUtilization: 95,
-        } : {
-            min: 1,
-            max: 1,
-        },
+        hpa: isProd
+            ? {
+                  min: 1,
+                  max: 4,
+                  cpuUtilization: 95,
+              }
+            : undefined,
 
         // Service config
         service: {
@@ -134,6 +133,25 @@ export const erpcInstance = new KubernetesService(
         ingress: {
             host: `erpc.${baseDomainName}`,
             tlsSecretName: "erpc-tls",
+            // Performance optimizations for rpc
+            customAnnotations: {
+                // Connection pooling for ingress -> backend pod connections
+                "nginx.ingress.kubernetes.io/upstream-keepalive-connections":
+                    "32",
+                "nginx.ingress.kubernetes.io/upstream-keepalive-requests":
+                    "1000",
+                "nginx.ingress.kubernetes.io/upstream-keepalive-timeout": "60",
+                // Optimized timeouts for API responses
+                "nginx.ingress.kubernetes.io/proxy-connect-timeout": "5",
+                "nginx.ingress.kubernetes.io/proxy-send-timeout": "60",
+                "nginx.ingress.kubernetes.io/proxy-read-timeout": "60",
+                // Buffer settings for API responses
+                "nginx.ingress.kubernetes.io/proxy-buffering": "on",
+                "nginx.ingress.kubernetes.io/proxy-buffers-number": "8",
+                "nginx.ingress.kubernetes.io/proxy-buffer-size": "16k",
+                "nginx.ingress.kubernetes.io/proxy-busy-buffers-size": "32k",
+                "nginx.ingress.kubernetes.io/proxy-body-size": "10m",
+            },
         },
 
         // ServiceMonitor config

@@ -70,6 +70,8 @@ type KubernetesServiceArgs = {
         host: Input<string>;
         tlsSecretName: Input<string>;
         additionalHosts?: string[];
+        // Custom annotations to add/override
+        customAnnotations?: Record<string, Input<string>>;
     };
 
     // Info for the service monitor
@@ -151,6 +153,12 @@ export class KubernetesService extends ComponentResource {
     }
 
     private createDeployment(): k8s.apps.v1.Deployment {
+        // When HPA is enabled, do not set replicas - let HPA manage it
+        // This prevents conflicts with VPA recommender and follows K8s best practices
+        const replicas = this.args.hpa
+            ? undefined
+            : this.args.pod.replicas || 1;
+
         return new k8s.apps.v1.Deployment(
             `${this.name}Deployment`,
             {
@@ -161,7 +169,7 @@ export class KubernetesService extends ComponentResource {
                 },
                 spec: {
                     selector: { matchLabels: this.labels },
-                    replicas: this.args.pod.replicas || 1,
+                    replicas,
                     template: {
                         metadata: { labels: this.labels },
                         spec: {
@@ -284,12 +292,15 @@ export class KubernetesService extends ComponentResource {
                     name: `${this.name}-${normalizedStageName}-ingress`.toLocaleLowerCase(),
                     namespace: this.args.namespace,
                     annotations: {
+                        // Base annotation
                         "nginx.ingress.kubernetes.io/rewrite-target": "/",
                         "kubernetes.io/ingress.class": "nginx",
                         "kubernetes.io/tls-acme": "true",
                         "cert-manager.io/cluster-issuer": "letsencrypt",
                         "nginx.ingress.kubernetes.io/ssl-redirect": "true",
                         "nginx.ingress.kubernetes.io/proxy-buffer-size": "8k",
+                        // Merge custom annotations if provided (can override defaults)
+                        ...(this.args.ingress?.customAnnotations ?? {}),
                     },
                 },
                 spec: {
