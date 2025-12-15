@@ -22,8 +22,7 @@ import {
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: [envioProvider, freeRpcProvider],
-    upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
+    providers: [alchemyProvider, envioProvider, freeRpcProvider],
     networkDefaults: {
         failsafe: {
             retry: {
@@ -35,7 +34,7 @@ const ponderProject = {
             },
             hedge: {
                 // Wait at least 2s before hedging a request
-                delay: "2s",
+                delay: "5s",
                 maxCount: 3,
             },
         },
@@ -65,6 +64,7 @@ const ponderProject = {
 const nexusProject = {
     id: "nexus-rpc",
     providers: [alchemyProvider, pimlicoProvider, drpcProvider],
+    upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     auth: {
         strategies: [
             {
