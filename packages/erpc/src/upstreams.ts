@@ -69,12 +69,7 @@ export const pimlicoProvider = {
 } as const satisfies ProviderConfig;
 
 export const freeRpcProvider = {
-    vendor: "repository",
-    overrides: {
-        "evm:*": {
-            ignoreMethods: ["eth_getLogs"],
-        },
-    },
+    vendor: "repository"
 } as const satisfies ProviderConfig;
 
 export const dwelirArbUpstream = {

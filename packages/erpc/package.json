@@ -19,7 +19,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@erpc-cloud/config": "^0.0.50"
+    "@erpc-cloud/config": "^0.0.60"
   },
   "engines": {
     "node": ">=18.14"

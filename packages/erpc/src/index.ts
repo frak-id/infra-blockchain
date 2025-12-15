@@ -14,6 +14,9 @@ import {
     freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
+import { isProd } from "./utils";
+
+const ponderProviders = isProd ? [alchemyProvider, envioProvider] : [envioProvider, freeRpcProvider];
 
 /**
  * The ponder rpc project
@@ -22,9 +25,9 @@ import {
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: [alchemyProvider, envioProvider, freeRpcProvider],
+    providers: ponderProviders,
     networkDefaults: {
-        failsafe: {
+        failsafe: [{
             retry: {
                 maxAttempts: 2,
                 delay: "100ms",
@@ -37,7 +40,11 @@ const ponderProject = {
                 delay: "5s",
                 maxCount: 3,
             },
-        },
+            timeout: {
+                // Timeout each request after 10s
+                duration: "10s",
+            }
+        }],
         evm: {
             integrity: {
                 enforceGetLogsBlockRange: true,
@@ -50,6 +57,7 @@ const ponderProject = {
             {
                 type: "secret",
                 secret: {
+                    id: "ponder-rpc-secret",
                     value: process.env.PONDER_RPC_SECRET ?? "a",
                 },
             },
@@ -70,13 +78,14 @@ const nexusProject = {
             {
                 type: "secret",
                 secret: {
+                    id: "nexus-rpc-secret",
                     value: process.env.NEXUS_RPC_SECRET ?? "a",
                 },
             },
         ],
     },
     networkDefaults: {
-        failsafe: {
+        failsafe: [{
             retry: {
                 maxAttempts: 3,
                 delay: "80ms",
@@ -91,7 +100,11 @@ const nexusProject = {
                 maxDelay: "2s",
                 quantile: 0.95,
             },
-        },
+            timeout: {
+                // Timeout each request after 5s
+                duration: "5s",
+            }
+        }],
     },
     cors: {
         allowedOrigins: ["*"],
