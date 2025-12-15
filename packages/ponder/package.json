@@ -21,10 +21,10 @@
     "docker:run": "docker run -P ponder-dev"
   },
   "dependencies": {
-    "elysia": "^1.3.4",
+    "elysia": "^1.4.19",
     "hono": "4.7.11",
-    "ponder": "^0.11.11",
-    "viem": "^2.30.6"
+    "ponder": "^0.15.17",
+    "viem": "^2.41.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
