@@ -80,6 +80,8 @@ export function createEnvConfig<ChainKey extends string>({
                 pollingInterval: pollingInterval ?? 60_000,
                 // Max request per second
                 maxRequestsPerSecond,
+                // Max block range
+                ethGetLogsBlockRange: 10_000,
             },
         },
         // contracts config
