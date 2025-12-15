@@ -7,6 +7,8 @@ import {
 import { cacheConfig } from "./storage";
 import {
     alchemyProvider,
+    blockPiArbSepoliaUpstream,
+    blockPiArbUpstream,
     drpcProvider,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
@@ -26,6 +28,7 @@ const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
     providers: ponderProviders,
+    upstreams: [blockPiArbUpstream, blockPiArbSepoliaUpstream],
     networkDefaults: {
         failsafe: [{
             retry: {

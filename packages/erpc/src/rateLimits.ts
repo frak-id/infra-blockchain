@@ -27,6 +27,11 @@ export const blockPiRateLimits = {
             period: 0, // == RateLimitPeriodSecond
             waitTime: "5s",
         },
+        {
+            method: "*",
+            maxCount: 500_000,
+            period: 5, // == RateLimitPeriodMonth
+        },
     ],
 } as const satisfies RateLimitBudgetConfig;
 
