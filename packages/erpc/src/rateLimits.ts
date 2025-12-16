@@ -9,7 +9,7 @@ export const dwelirRateLimits = {
         {
             method: "*",
             maxCount: 20,
-            period: "1s",
+            period: 0, // == RateLimitPeriodSecond
             waitTime: "5s",
         },
     ],
@@ -24,8 +24,13 @@ export const blockPiRateLimits = {
         {
             method: "*",
             maxCount: 20,
-            period: "1s",
+            period: 0, // == RateLimitPeriodSecond
             waitTime: "5s",
+        },
+        {
+            method: "*",
+            maxCount: 500_000,
+            period: 5, // == RateLimitPeriodMonth
         },
     ],
 } as const satisfies RateLimitBudgetConfig;
@@ -39,7 +44,7 @@ export const indexerProjectRateLimits = {
         {
             method: "*",
             maxCount: 200,
-            period: "1s",
+            period: 0, // == RateLimitPeriodSecond
             waitTime: "5s",
         },
     ],

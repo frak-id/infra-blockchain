@@ -35,7 +35,7 @@ export const alchemyProvider = {
     },
     overrides: {
         "evm:*": {
-            ignoreMethods: erc4337Methods,
+            ignoreMethods: erc4337Methods
         },
     },
 } as const satisfies ProviderConfig;
@@ -69,12 +69,7 @@ export const pimlicoProvider = {
 } as const satisfies ProviderConfig;
 
 export const freeRpcProvider = {
-    vendor: "repository",
-    overrides: {
-        "evm:*": {
-            ignoreMethods: ["eth_getLogs"],
-        },
-    },
+    vendor: "repository"
 } as const satisfies ProviderConfig;
 
 export const dwelirArbUpstream = {
