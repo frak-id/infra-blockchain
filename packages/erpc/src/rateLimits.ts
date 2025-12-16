@@ -16,21 +16,6 @@ export const dwelirRateLimits = {
 } as const satisfies RateLimitBudgetConfig;
 
 /**
- * Max 20 RPS on akchemy
- */
-export const alchemyRateLimits = {
-    id: "aclhemy",
-    rules: [
-        {
-            method: "*",
-            maxCount: 10,
-            period: 0, // == RateLimitPeriodSecond
-            waitTime: "5s",
-        },
-    ],
-} as const satisfies RateLimitBudgetConfig;
-
-/**
  * Max 20 RPS on blockpi
  */
 export const blockPiRateLimits = {

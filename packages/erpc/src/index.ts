@@ -1,6 +1,5 @@
 import type { Config, LogLevel, ProjectConfig } from "@erpc-cloud/config";
 import {
-    alchemyRateLimits,
     blockPiRateLimits,
     dwelirRateLimits,
     indexerProjectRateLimits,
@@ -148,7 +147,6 @@ export default {
     // Each rate limits
     rateLimiters: {
         budgets: [
-            alchemyRateLimits,
             dwelirRateLimits,
             blockPiRateLimits,
             indexerProjectRateLimits,

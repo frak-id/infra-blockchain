@@ -35,8 +35,7 @@ export const alchemyProvider = {
     },
     overrides: {
         "evm:*": {
-            ignoreMethods: erc4337Methods,
-            rateLimitBudget: "alchemy",
+            ignoreMethods: erc4337Methods
         },
     },
 } as const satisfies ProviderConfig;
