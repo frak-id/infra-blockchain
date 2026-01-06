@@ -1,6 +1,7 @@
 import { createConfig, mergeAbis } from "ponder";
 import { factory } from "ponder";
 import { type Address, parseAbiItem } from "viem";
+import { arbitrum } from "viem/chains";
 import * as deployedAddresses from "../abis/addresses.json";
 import {
     affiliationFixedCampaignAbi,
@@ -190,6 +191,23 @@ function getTransportUrl(chainId: number) {
         throw new Error("Missing erpc environment variable");
     }
 
-    // Return the base client wrapper in a cooldown one, aiming to slow down real time indexing on arbitrum / arbitrum sepolia
-    return `${erpcInternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`;
+    // Get the erpc url
+    const erpcUrl = `${erpcInternalUrl}/${chainId}?token=${process.env.PONDER_RPC_SECRET}`;
+    const urls = [erpcUrl];
+
+    // Add envio rpc url
+    if (process.env.ENVIO_API_KEY)
+        urls.push(
+            `https://${chainId}.rpc.hypersync.xyz/${process.env.ENVIO_API_KEY}`
+        );
+
+    // If chain === arbitrum (prod), also add alchemy and blockpi
+    if (chainId === arbitrum.id) {
+        if (process.env.BLOCKPI_API_KEY_ARB)
+            urls.push(
+                `https://arbitrum.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB}`
+            );
+    }
+
+    return urls;
 }

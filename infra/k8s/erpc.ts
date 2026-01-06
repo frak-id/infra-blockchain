@@ -100,8 +100,8 @@ export const erpcInstance = new KubernetesService(
                     },
                     // Ressources per container
                     resources: {
-                        limits: { cpu: "50m", memory: "1024Mi" },
-                        requests: { cpu: "10m", memory: "512Mi" },
+                        limits: { cpu: "60m", memory: "1024Mi" },
+                        requests: { cpu: "30m", memory: "512Mi" },
                     },
                 },
             ],
@@ -112,7 +112,7 @@ export const erpcInstance = new KubernetesService(
             ? {
                   min: 1,
                   max: 4,
-                  cpuUtilization: 95,
+                  cpuUtilization: 80,
               }
             : undefined,
 
@@ -158,7 +158,7 @@ export const erpcInstance = new KubernetesService(
         serviceMonitor: {
             port: "metrics",
             path: "/metrics",
-            interval: "15s",
+            interval: "60s",
         },
 
         // Local command

@@ -16,9 +16,6 @@ import {
     freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
-import { isProd } from "./utils";
-
-const ponderProviders = isProd ? [alchemyProvider, envioProvider] : [envioProvider, freeRpcProvider];
 
 /**
  * The ponder rpc project
@@ -27,27 +24,29 @@ const ponderProviders = isProd ? [alchemyProvider, envioProvider] : [envioProvid
 const ponderProject = {
     id: "ponder-rpc",
     rateLimitBudget: "indexer",
-    providers: ponderProviders,
+    providers: [envioProvider, freeRpcProvider],
     upstreams: [blockPiArbUpstream, blockPiArbSepoliaUpstream],
     networkDefaults: {
-        failsafe: [{
-            retry: {
-                maxAttempts: 2,
-                delay: "100ms",
-                backoffMaxDelay: "2s",
-                backoffFactor: 0.5,
-                jitter: "200ms",
+        failsafe: [
+            {
+                retry: {
+                    maxAttempts: 2,
+                    delay: "100ms",
+                    backoffMaxDelay: "2s",
+                    backoffFactor: 0.5,
+                    jitter: "200ms",
+                },
+                hedge: {
+                    // Wait at least 2s before hedging a request
+                    delay: "5s",
+                    maxCount: 3,
+                },
+                timeout: {
+                    // Timeout each request after 10s
+                    duration: "10s",
+                },
             },
-            hedge: {
-                // Wait at least 2s before hedging a request
-                delay: "5s",
-                maxCount: 3,
-            },
-            timeout: {
-                // Timeout each request after 10s
-                duration: "10s",
-            }
-        }],
+        ],
         evm: {
             integrity: {
                 enforceGetLogsBlockRange: true,
@@ -88,26 +87,28 @@ const nexusProject = {
         ],
     },
     networkDefaults: {
-        failsafe: [{
-            retry: {
-                maxAttempts: 3,
-                delay: "80ms",
-                backoffMaxDelay: "500ms",
-                backoffFactor: 0.5,
-                jitter: "200ms",
+        failsafe: [
+            {
+                retry: {
+                    maxAttempts: 3,
+                    delay: "80ms",
+                    backoffMaxDelay: "500ms",
+                    backoffFactor: 0.5,
+                    jitter: "200ms",
+                },
+                hedge: {
+                    maxCount: 2,
+                    delay: "50ms",
+                    minDelay: "300ms",
+                    maxDelay: "2s",
+                    quantile: 0.95,
+                },
+                timeout: {
+                    // Timeout each request after 5s
+                    duration: "5s",
+                },
             },
-            hedge: {
-                maxCount: 2,
-                delay: "50ms",
-                minDelay: "300ms",
-                maxDelay: "2s",
-                quantile: 0.95,
-            },
-            timeout: {
-                // Timeout each request after 5s
-                duration: "5s",
-            }
-        }],
+        ],
     },
     cors: {
         allowedOrigins: ["*"],

@@ -2,6 +2,9 @@ import { normalizedStageName } from "../utils";
 import { blockchainNamespace } from "./utils";
 
 const ponderRpcSecret = new sst.Secret("PONDER_RPC_SECRET");
+const alchemyApiKey = new sst.Secret("ALCHEMY_API_KEY");
+const blockPiApiKey = new sst.Secret("BLOCKPI_API_KEY_ARB");
+const envioApiKey = new sst.Secret("ENVIO_API_KEY");
 
 /**
  * All the secrets for the erpc instance
@@ -16,14 +19,14 @@ export const erpcSecrets = new kubernetes.core.v1.Secret("erpc-secrets", {
         BLOCKPI_API_KEY_ARB_SEPOLIA: new sst.Secret(
             "BLOCKPI_API_KEY_ARB_SEPOLIA"
         ).value,
-        BLOCKPI_API_KEY_ARB: new sst.Secret("BLOCKPI_API_KEY_ARB").value,
-        ALCHEMY_API_KEY: new sst.Secret("ALCHEMY_API_KEY").value,
+        BLOCKPI_API_KEY_ARB: blockPiApiKey.value,
+        ALCHEMY_API_KEY: alchemyApiKey.value,
         PIMLICO_API_KEY: new sst.Secret("PIMLICO_API_KEY").value,
         DRPC_API_KEY: new sst.Secret("DRPC_API_KEY").value,
         DWELIR_API_KEY: new sst.Secret("DWELIR_API_KEY").value,
         PONDER_RPC_SECRET: ponderRpcSecret.value,
         NEXUS_RPC_SECRET: new sst.Secret("NEXUS_RPC_SECRET").value,
-        ENVIO_API_KEY: new sst.Secret("ENVIO_API_KEY").value,
+        ENVIO_API_KEY: envioApiKey.value,
     },
 });
 
@@ -38,5 +41,8 @@ export const ponderSecrets = new kubernetes.core.v1.Secret("ponder-secrets", {
     type: "Opaque",
     stringData: {
         PONDER_RPC_SECRET: ponderRpcSecret.value,
+        ALCHEMY_API_KEY: alchemyApiKey.value,
+        BLOCKPI_API_KEY_ARB: blockPiApiKey.value,
+        ENVIO_API_KEY: envioApiKey.value,
     },
 });
