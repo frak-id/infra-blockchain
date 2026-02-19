@@ -100,8 +100,8 @@ export const erpcInstance = new KubernetesService(
                     },
                     // Ressources per container
                     resources: {
-                        limits: { cpu: "50m", memory: "1024Mi" },
-                        requests: { cpu: "10m", memory: "512Mi" },
+                        limits: { cpu: "50m", memory: isProd ? "1024Mi" : "256Mi" },
+                        requests: { cpu: "10m", memory: isProd ? "512Mi" : "128Mi" },
                     },
                 },
             ],
