@@ -27,7 +27,6 @@ export default $config({
         // Gcp specific deployment
         if (isGcp) {
             await import("./infra/k8s/erpc.ts");
-            // await import("./infra/k8s/ponder.ts");
             return;
         }
 

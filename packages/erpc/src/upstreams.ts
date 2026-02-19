@@ -12,9 +12,6 @@ if (!process.env.DRPC_API_KEY) {
 if (!process.env.DWELIR_API_KEY) {
     throw new Error("Missing DWELIR_API_KEY environment variable");
 }
-if (!process.env.ENVIO_API_KEY) {
-    throw new Error("Missing ENVIO_API_KEY environment variable");
-}
 
 /**
  * Method specifics for for the smart wallets
@@ -35,15 +32,8 @@ export const alchemyProvider = {
     },
     overrides: {
         "evm:*": {
-            ignoreMethods: erc4337Methods
+            ignoreMethods: erc4337Methods,
         },
-    },
-} as const satisfies ProviderConfig;
-
-export const envioProvider = {
-    vendor: "envio",
-    settings: {
-        apiKey: process.env.ENVIO_API_KEY,
     },
 } as const satisfies ProviderConfig;
 
@@ -69,7 +59,7 @@ export const pimlicoProvider = {
 } as const satisfies ProviderConfig;
 
 export const freeRpcProvider = {
-    vendor: "repository"
+    vendor: "repository",
 } as const satisfies ProviderConfig;
 
 export const dwelirArbUpstream = {
@@ -87,23 +77,5 @@ export const dwelirArbSepoliaUpstream = {
     vendorName: "dwelir",
     // Budget for rate limiting
     rateLimitBudget: "dwelir",
-    ignoreMethods: erc4337Methods,
-} as const satisfies UpstreamConfig;
-
-export const blockPiArbUpstream = {
-    endpoint: `https://arbitrum.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB}`,
-    type: "evm",
-    vendorName: "blockPi",
-    // Budget for rate limiting
-    rateLimitBudget: "blockPi",
-    ignoreMethods: erc4337Methods,
-} as const satisfies UpstreamConfig;
-
-export const blockPiArbSepoliaUpstream = {
-    endpoint: `https://arbitrum-sepolia.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB_SEPOLIA}`,
-    type: "evm",
-    vendorName: "blockPi",
-    // Budget for rate limiting
-    rateLimitBudget: "blockPi",
     ignoreMethods: erc4337Methods,
 } as const satisfies UpstreamConfig;
