@@ -72,23 +72,14 @@ const cachePolicies = [
         ttl: "2s",
         maxItemSize: "20kb",
     },
-    // Cache realtime data for 1sec on the memory on arbitrum
+    // Cache realtime data for 1sec on the memory on arbitrum / arbitrum sepolia
     {
         connector: "memory-realtime",
-        network: "evm:42161",
+        network: "*",
         method: "*",
         finality: DataFinalityStateRealtime,
         empty: CacheEmptyBehaviorIgnore,
         ttl: "1s",
-    },
-    // Cache realtime data for 5sec on arbitrum sepolia
-    {
-        connector: "memory-realtime",
-        network: "evm:421614",
-        method: "*",
-        finality: DataFinalityStateRealtime,
-        empty: CacheEmptyBehaviorIgnore,
-        ttl: "5s",
     },
 ] as const satisfies CachePolicyConfig[];
 
