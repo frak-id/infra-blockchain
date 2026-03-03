@@ -1,71 +1,14 @@
 import type { Config, LogLevel, ProjectConfig } from "@erpc-cloud/config";
-import {
-    blockPiRateLimits,
-    dwelirRateLimits,
-    indexerProjectRateLimits,
-} from "./rateLimits";
+import { blockPiRateLimits, dwelirRateLimits } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
     alchemyProvider,
-    blockPiArbSepoliaUpstream,
-    blockPiArbUpstream,
     drpcProvider,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
-    envioProvider,
     freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
-
-/**
- * The ponder rpc project
- *  - indexing only on envio + dwelir + blockPi
- */
-const ponderProject = {
-    id: "ponder-rpc",
-    rateLimitBudget: "indexer",
-    providers: [envioProvider, freeRpcProvider],
-    upstreams: [blockPiArbUpstream, blockPiArbSepoliaUpstream],
-    networkDefaults: {
-        failsafe: [
-            {
-                retry: {
-                    maxAttempts: 2,
-                    delay: "100ms",
-                    backoffMaxDelay: "2s",
-                    backoffFactor: 0.5,
-                    jitter: "200ms",
-                },
-                hedge: {
-                    // Wait at least 2s before hedging a request
-                    delay: "5s",
-                    maxCount: 3,
-                },
-                timeout: {
-                    // Timeout each request after 10s
-                    duration: "10s",
-                },
-            },
-        ],
-        evm: {
-            integrity: {
-                enforceGetLogsBlockRange: true,
-                enforceHighestBlock: true,
-            },
-        },
-    },
-    auth: {
-        strategies: [
-            {
-                type: "secret",
-                secret: {
-                    id: "ponder-rpc-secret",
-                    value: process.env.PONDER_RPC_SECRET ?? "a",
-                },
-            },
-        ],
-    },
-} as const satisfies ProjectConfig;
 
 /**
  * The nexus rpc project
@@ -73,7 +16,9 @@ const ponderProject = {
  */
 const nexusProject = {
     id: "nexus-rpc",
-    providers: [alchemyProvider, pimlicoProvider, drpcProvider],
+    providers: isProd
+        ? [alchemyProvider, pimlicoProvider, drpcProvider]
+        : [pimlicoProvider, drpcProvider, freeRpcProvider],
     upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     auth: {
         strategies: [
@@ -144,13 +89,9 @@ export default {
         evmJsonRpcCache: cacheConfig,
     },
     // Each projects
-    projects: [ponderProject, nexusProject],
+    projects: [nexusProject],
     // Each rate limits
     rateLimiters: {
-        budgets: [
-            dwelirRateLimits,
-            blockPiRateLimits,
-            indexerProjectRateLimits,
-        ],
+        budgets: [dwelirRateLimits, blockPiRateLimits],
     },
 } as const satisfies Config;

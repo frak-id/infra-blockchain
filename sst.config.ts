@@ -12,7 +12,7 @@ export default $config({
             },
             providers: {
                 kubernetes: "4.23.0",
-                "docker-build": "0.0.12",
+                "docker-build": "0.0.14",
                 gcp: {
                     version: "8.32.1",
                     project: "frak-main-v1",
@@ -27,7 +27,6 @@ export default $config({
         // Gcp specific deployment
         if (isGcp) {
             await import("./infra/k8s/erpc.ts");
-            await import("./infra/k8s/ponder.ts");
             return;
         }
 

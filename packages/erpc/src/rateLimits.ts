@@ -34,18 +34,3 @@ export const blockPiRateLimits = {
         },
     ],
 } as const satisfies RateLimitBudgetConfig;
-
-/**
- * Max 50 RPS on the indexer
- */
-export const indexerProjectRateLimits = {
-    id: "indexer",
-    rules: [
-        {
-            method: "*",
-            maxCount: 200,
-            period: 0, // == RateLimitPeriodSecond
-            waitTime: "5s",
-        },
-    ],
-} as const satisfies RateLimitBudgetConfig;
