@@ -16,9 +16,7 @@ import {
  */
 const nexusProject = {
     id: "nexus-rpc",
-    providers: isProd
-        ? [alchemyProvider, pimlicoProvider, drpcProvider]
-        : [pimlicoProvider, drpcProvider, freeRpcProvider],
+    providers: [alchemyProvider, pimlicoProvider, drpcProvider],
     upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
     auth: {
         strategies: [
