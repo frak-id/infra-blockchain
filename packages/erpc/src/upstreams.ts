@@ -58,10 +58,6 @@ export const pimlicoProvider = {
     },
 } as const satisfies ProviderConfig;
 
-export const freeRpcProvider = {
-    vendor: "repository",
-} as const satisfies ProviderConfig;
-
 export const dwelirArbUpstream = {
     endpoint: `https://api-arbitrum-mainnet-archive.n.dwellir.com/${process.env.DWELIR_API_KEY}`,
     type: "evm",

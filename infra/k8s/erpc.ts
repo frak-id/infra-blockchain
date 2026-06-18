@@ -69,6 +69,13 @@ export const erpcInstance = new KubernetesService(
                         { name: "ERPC_LOG_LEVEL", value: "warn" },
                         { name: "ERPC_DATABASE_URL", value: getDbUrl("erpc") },
                         { name: "STAGE", value: normalizedStageName },
+                        // Go soft memory limit kept under the container limit so
+                        // GC runs before the cgroup OOM-kills the pod (unit is
+                        // MiB, not k8s "Mi")
+                        {
+                            name: "GOMEMLIMIT",
+                            value: isProd ? "900MiB" : "230MiB",
+                        },
                     ],
                     // Mount all the secrets
                     envFrom: [

@@ -23,7 +23,7 @@
     "packages/erpc": {
       "name": "@frak-indexer/erpc",
       "dependencies": {
-        "@erpc-cloud/config": "^0.0.60",
+        "@erpc-cloud/config": "0.1.1",
       },
       "devDependencies": {
         "@biomejs/biome": "1.9.4",
@@ -58,7 +58,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@1.9.4", "", { "os": "win32", "cpu": "x64" }, "sha512-8Y5wMhVIPaWe6jw2H+KlEm4wP/f7EW3810ZLmDlrEEy5KvBsb9ECEfu/kMWD484ijfQ8+nIi0giMgu9g1UAuuA=="],
 
-    "@erpc-cloud/config": ["@erpc-cloud/config@0.0.60", "", {}, "sha512-nZOvgM7QvbCSdSNMykje+DBWwPghWsBBzH/x+8Y1KveSpdLSdDE3C9GEN6JSd5dzaamDDIJsFYXxXHHWLKIBpA=="],
+    "@erpc-cloud/config": ["@erpc-cloud/config@0.1.1", "", {}, "sha512-ZeS+PQbmo75N9N7NrmGOfJH1RSL4JnZu9vTPrwM87E/rxVNfDxWk4cjYu1jlhtVbrwESK6cbMaCs485ELuSsOQ=="],
 
     "@frak-indexer/erpc": ["@frak-indexer/erpc@workspace:packages/erpc"],
 
