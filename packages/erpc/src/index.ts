@@ -1,9 +1,17 @@
 import type { Config, LogLevel, ProjectConfig } from "@erpc-cloud/config";
-import { blockPiRateLimits, dwelirRateLimits } from "./rateLimits";
+import {
+    alchemyRateLimits,
+    blockPiRateLimits,
+    drpcRateLimits,
+    dwelirRateLimits,
+} from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
     alchemyProvider,
-    drpcProvider,
+    blockPiArbSepoliaUpstream,
+    blockPiArbUpstream,
+    drpcArbSepoliaUpstream,
+    drpcArbUpstream,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
     pimlicoProvider,
@@ -15,8 +23,15 @@ import {
  */
 const nexusProject = {
     id: "nexus-rpc",
-    providers: [alchemyProvider, pimlicoProvider, drpcProvider],
-    upstreams: [dwelirArbUpstream, dwelirArbSepoliaUpstream],
+    providers: [alchemyProvider, pimlicoProvider],
+    upstreams: [
+        drpcArbUpstream,
+        drpcArbSepoliaUpstream,
+        dwelirArbUpstream,
+        dwelirArbSepoliaUpstream,
+        blockPiArbUpstream,
+        blockPiArbSepoliaUpstream,
+    ],
     auth: {
         strategies: [
             {
@@ -93,6 +108,11 @@ export default {
     projects: [nexusProject],
     // Each rate limits
     rateLimiters: {
-        budgets: [dwelirRateLimits, blockPiRateLimits],
+        budgets: [
+            alchemyRateLimits,
+            drpcRateLimits,
+            dwelirRateLimits,
+            blockPiRateLimits,
+        ],
     },
 } as const satisfies Config;
