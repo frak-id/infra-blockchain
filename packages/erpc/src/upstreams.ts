@@ -126,12 +126,12 @@ export const dwelirArbSepoliaUpstream = {
     ignoreMethods: erc4337Methods,
 } as const satisfies UpstreamConfig;
 
-// BlockPi returns Arbitrum's eth_syncing result as a (base64) string instead of
-// a boolean/object, which the evm state poller cannot parse. Ignore the method
-// so the poller marks it unsupported on the first cycle and stops retrying
-// (otherwise it logs a warning ~10 times per pod before giving up).
-const blockPiIgnoreMethods = [...erc4337Methods, "eth_syncing"];
-
+// NOTE: BlockPi returns Arbitrum's eth_syncing result as a (base64) string
+// instead of a boolean/object, which the evm state poller cannot parse and logs
+// a warning for. This can't be suppressed via ignoreMethods (the state poller
+// calls eth_syncing with byPassMethodExclusion=true), but it is self-limiting:
+// after 10 consecutive failures the poller sets skipSyncingCheck and goes quiet
+// for the rest of the pod's lifetime.
 export const blockPiArbUpstream = {
     endpoint: `https://arbitrum.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB}`,
     type: "evm",
@@ -139,7 +139,7 @@ export const blockPiArbUpstream = {
     // Budget for rate limiting
     rateLimitBudget: "blockPi",
     rateLimitAutoTune: freeTierAutoTune(5, 20),
-    ignoreMethods: blockPiIgnoreMethods,
+    ignoreMethods: erc4337Methods,
 } as const satisfies UpstreamConfig;
 
 export const blockPiArbSepoliaUpstream = {
@@ -149,5 +149,5 @@ export const blockPiArbSepoliaUpstream = {
     // Budget for rate limiting
     rateLimitBudget: "blockPi",
     rateLimitAutoTune: freeTierAutoTune(5, 20),
-    ignoreMethods: blockPiIgnoreMethods,
+    ignoreMethods: erc4337Methods,
 } as const satisfies UpstreamConfig;
