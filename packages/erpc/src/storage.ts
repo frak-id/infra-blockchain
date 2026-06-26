@@ -89,4 +89,12 @@ const cachePolicies = [
 export const cacheConfig = {
     connectors,
     policies: cachePolicies,
+    // zstd-compress cached payloads larger than 1KB (e.g. eth_call /
+    // eth_getCode results) to cut Postgres storage and IO
+    compression: {
+        enabled: true,
+        algorithm: "zstd",
+        zstdLevel: "default",
+        threshold: 1024,
+    },
 } as const satisfies CacheConfig;

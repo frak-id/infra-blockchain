@@ -6,7 +6,6 @@ import {
     drpcProvider,
     dwelirArbSepoliaUpstream,
     dwelirArbUpstream,
-    freeRpcProvider,
     pimlicoProvider,
 } from "./upstreams";
 
@@ -41,10 +40,13 @@ const nexusProject = {
                 },
                 hedge: {
                     maxCount: 2,
-                    delay: "50ms",
-                    minDelay: "300ms",
-                    maxDelay: "2s",
-                    quantile: 0.95,
+                    // delay resolves to base + p95 latency, clamped to [min, max]
+                    delay: {
+                        base: "50ms",
+                        quantile: 0.95,
+                        min: "300ms",
+                        max: "2s",
+                    },
                 },
                 timeout: {
                     // Timeout each request after 5s
@@ -71,7 +73,8 @@ export default {
     logLevel: (process.env.ERPC_LOG_LEVEL ?? "debug") as LogLevel,
     // Server + metrics config
     server: {
-        httpPort: 8080,
+        listenV4: true,
+        httpPortV4: 8080,
         maxTimeout: "60s",
         listenV6: false,
     },
