@@ -12,6 +12,12 @@ if (!process.env.DRPC_API_KEY) {
 if (!process.env.DWELIR_API_KEY) {
     throw new Error("Missing DWELIR_API_KEY environment variable");
 }
+if (!process.env.BLOCKPI_API_KEY_ARB) {
+    throw new Error("Missing BLOCKPI_API_KEY_ARB environment variable");
+}
+if (!process.env.BLOCKPI_API_KEY_ARB_SEPOLIA) {
+    throw new Error("Missing BLOCKPI_API_KEY_ARB_SEPOLIA environment variable");
+}
 
 /**
  * Method specifics for for the smart wallets
@@ -33,16 +39,28 @@ export const alchemyProvider = {
     overrides: {
         "evm:*": {
             ignoreMethods: erc4337Methods,
+            rateLimitBudget: "alchemy",
         },
     },
 } as const satisfies ProviderConfig;
 
-export const drpcProvider = {
-    vendor: "drpc",
-    settings: {
-        apiKey: process.env.DRPC_API_KEY,
-    },
-} as const satisfies ProviderConfig;
+export const drpcArbUpstream = {
+    endpoint: `https://lb.drpc.live/arbitrum/${process.env.DRPC_API_KEY}`,
+    type: "evm",
+    vendorName: "drpc",
+    // Budget for rate limiting
+    rateLimitBudget: "drpc",
+    ignoreMethods: erc4337Methods,
+} as const satisfies UpstreamConfig;
+
+export const drpcArbSepoliaUpstream = {
+    endpoint: `https://lb.drpc.live/arbitrum-sepolia/${process.env.DRPC_API_KEY}`,
+    type: "evm",
+    vendorName: "drpc",
+    // Budget for rate limiting
+    rateLimitBudget: "drpc",
+    ignoreMethods: erc4337Methods,
+} as const satisfies UpstreamConfig;
 
 export const pimlicoProvider = {
     vendor: "pimlico",
@@ -73,5 +91,23 @@ export const dwelirArbSepoliaUpstream = {
     vendorName: "dwelir",
     // Budget for rate limiting
     rateLimitBudget: "dwelir",
+    ignoreMethods: erc4337Methods,
+} as const satisfies UpstreamConfig;
+
+export const blockPiArbUpstream = {
+    endpoint: `https://arbitrum.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB}`,
+    type: "evm",
+    vendorName: "blockPi",
+    // Budget for rate limiting
+    rateLimitBudget: "blockPi",
+    ignoreMethods: erc4337Methods,
+} as const satisfies UpstreamConfig;
+
+export const blockPiArbSepoliaUpstream = {
+    endpoint: `https://arbitrum-sepolia.blockpi.network/v1/rpc/${process.env.BLOCKPI_API_KEY_ARB_SEPOLIA}`,
+    type: "evm",
+    vendorName: "blockPi",
+    // Budget for rate limiting
+    rateLimitBudget: "blockPi",
     ignoreMethods: erc4337Methods,
 } as const satisfies UpstreamConfig;
