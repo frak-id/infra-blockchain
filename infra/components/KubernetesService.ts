@@ -74,6 +74,17 @@ type KubernetesServiceArgs = {
         customAnnotations?: Record<string, Input<string>>;
     };
 
+    // Gateway API route, independent of `ingress` so both can be published
+    // side by side during a migration
+    httpRoute?: {
+        hostnames: Input<string>[];
+        parentRefs: Input<{
+            name: Input<string>;
+            namespace?: Input<string>;
+            sectionName?: Input<string>;
+        }>[];
+    };
+
     // Info for the service monitor
     serviceMonitor?: {
         port: Input<string>; // Matching a port defined in the `service.ports[number].name`
@@ -92,6 +103,7 @@ export class KubernetesService extends ComponentResource {
     public readonly hpa: k8s.autoscaling.v1.HorizontalPodAutoscaler | null =
         null;
     public readonly ingress: k8s.networking.v1.Ingress | null = null;
+    public readonly httpRoute: k8s.apiextensions.CustomResource | null = null;
     public readonly serviceMonitor: k8s.apiextensions.CustomResource | null =
         null;
     public readonly devCommand: DevCommand | null = null;
@@ -132,6 +144,11 @@ export class KubernetesService extends ComponentResource {
         // Create the ingress if defined
         if (this.args.ingress && this.service) {
             this.ingress = this.createIngress();
+        }
+
+        // Create the Gateway API route if defined
+        if (this.args.httpRoute && this.service) {
+            this.httpRoute = this.createHttpRoute();
         }
 
         // Create the service monitor if defined
@@ -310,6 +327,47 @@ export class KubernetesService extends ComponentResource {
                         {
                             hosts,
                             secretName: this.args.ingress.tlsSecretName,
+                        },
+                    ],
+                },
+            },
+            { ...this.opts, parent: this, dependsOn: this.service }
+        );
+    }
+
+    private createHttpRoute(): k8s.apiextensions.CustomResource {
+        if (!this.args.httpRoute || !this.service) {
+            throw new Error(
+                "HTTPRoute configuration and Service are required to create an HTTPRoute"
+            );
+        }
+
+        // Backend port = first service port (the http one, not metrics)
+        const servicePort = $output(this.args.service?.ports ?? []).apply(
+            (ports) => ports[0]?.port ?? 80
+        );
+
+        return new k8s.apiextensions.CustomResource(
+            `${this.name}HttpRoute`,
+            {
+                apiVersion: "gateway.networking.k8s.io/v1",
+                kind: "HTTPRoute",
+                metadata: {
+                    name: `${this.name}-${normalizedStageName}-route`.toLocaleLowerCase(),
+                    namespace: this.args.namespace,
+                    labels: this.labels,
+                },
+                spec: {
+                    parentRefs: this.args.httpRoute.parentRefs,
+                    hostnames: this.args.httpRoute.hostnames,
+                    rules: [
+                        {
+                            backendRefs: [
+                                {
+                                    name: this.service.metadata.name,
+                                    port: servicePort,
+                                },
+                            ],
                         },
                     ],
                 },
