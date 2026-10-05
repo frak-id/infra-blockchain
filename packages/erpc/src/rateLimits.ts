@@ -1,41 +1,62 @@
 import type { RateLimitBudgetConfig } from "@erpc-cloud/config";
 
 /**
- * Alchemy free tier: 500 CU/s over a 10s rolling window.
- * eth_call ~= 26 CU, so ~20 req/s keeps us safely within the budget.
+ * Every budget below is consumed in credit mode: each upstream using it sets
+ * `rateLimitCountMode: "credit"`, so a call draws its vendor credit cost
+ * (Alchemy CU, dRPC CU, BlockPi RU, ...) from ONE pool shared by every method.
+ *
+ * Don't fall back to the default "request" mode: it keys counters per method,
+ * so a `method: "*"` rule of 20 means 20/s for EACH method, not 20/s in total.
+ * Mixing both modes on one budget also splits it into two separate counters.
+ *
+ * Keep a single rule per budget: the auto-tuner rescales every rule matching
+ * the method and clamps each one to its min/max bounds, so a second (daily,
+ * monthly) rule would get clamped down to the per-second bounds. Quotas are
+ * left to the providers; the in-memory counters are per pod and reset on every
+ * deploy anyway.
+ *
+ * The state poller goes through these budgets too (eth_getBlockByNumber for
+ * latest + finalized, every 30s, on every upstream).
+ */
+
+/**
+ * Alchemy free tier: 500 CU/s (10s rolling window, account wide), 30M CU/month.
+ * Credits come from Alchemy's CU table, auto-fetched by erpc (eth_call = 26 CU).
  */
 export const alchemyRateLimits = {
     id: "alchemy",
     rules: [
         {
             method: "*",
-            maxCount: 20,
+            maxCount: 500,
             period: 0, // == RateLimitPeriodSecond
         },
     ],
 } as const satisfies RateLimitBudgetConfig;
 
 /**
- * dRPC free tier: 120k CU/min normally (~100 eth_call/s), but can drop to a
- * 50,400 CU/min floor (~40 eth_call/s) under high regional demand. Cap at
- * 30 RPS to stay under the reduced-tier floor and avoid capacity-exceeded.
+ * dRPC free tier: 120k CU/min normally, but can drop to a 50,400 CU/min floor
+ * (~840 CU/s) under high regional demand; 210M CU / 30 days. erpc's built-in
+ * table charges a flat 20 CU per billable call, so 600 CU/s (30 calls/s) stays
+ * under the reduced-tier floor and avoids capacity-exceeded errors.
  */
 export const drpcRateLimits = {
     id: "drpc",
     rules: [
         {
             method: "*",
-            maxCount: 30,
+            maxCount: 600,
             period: 0, // == RateLimitPeriodSecond
         },
     ],
 } as const satisfies RateLimitBudgetConfig;
 
 /**
- * Dwelir free tier: 20 responses/s (no burst on free tier).
+ * Dwellir free tier: 20 responses/s (no burst), 100k responses/day.
+ * Dwellir bills 1 credit per response, whatever the method.
  */
-export const dwelirRateLimits = {
-    id: "dwelir",
+export const dwellirRateLimits = {
+    id: "dwellir",
     rules: [
         {
             method: "*",
@@ -46,20 +67,17 @@ export const dwelirRateLimits = {
 } as const satisfies RateLimitBudgetConfig;
 
 /**
- * BlockPi free tier: 20 req/s (400 RU/s), 50M RU / 32 days.
+ * BlockPi free tier: 20 req/s and 400 RU/s per endpoint, 50M RU / 32 days.
+ * Credits are BlockPi RUs (see `blockPiRequestUnits`); eth_call = 20 RU, so the
+ * RU cap also keeps us around the 20 req/s one.
  */
 export const blockPiRateLimits = {
-    id: "blockPi",
+    id: "blockpi",
     rules: [
         {
             method: "*",
-            maxCount: 20,
+            maxCount: 400,
             period: 0, // == RateLimitPeriodSecond
-        },
-        {
-            method: "*",
-            maxCount: 500_000,
-            period: 5, // == RateLimitPeriodMonth
         },
     ],
 } as const satisfies RateLimitBudgetConfig;

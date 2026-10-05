@@ -3,7 +3,7 @@ import {
     alchemyRateLimits,
     blockPiRateLimits,
     drpcRateLimits,
-    dwelirRateLimits,
+    dwellirRateLimits,
 } from "./rateLimits";
 import { cacheConfig } from "./storage";
 import {
@@ -12,8 +12,8 @@ import {
     blockPiArbUpstream,
     drpcArbSepoliaUpstream,
     drpcArbUpstream,
-    dwelirArbSepoliaUpstream,
-    dwelirArbUpstream,
+    dwellirArbSepoliaUpstream,
+    dwellirArbUpstream,
     pimlicoProvider,
 } from "./upstreams";
 
@@ -23,12 +23,16 @@ import {
  */
 const nexusProject = {
     id: "nexus-rpc",
+    // The nexus secret ships in the wallet bundles, so anyone can call us:
+    // deny every client directive (X-ERPC-* headers / ?skip-cache-read=,
+    // ?use-upstream=, ...) so callers can't bypass the cache or pin upstreams
+    allowClientDirectives: "",
     providers: [alchemyProvider, pimlicoProvider],
     upstreams: [
         drpcArbUpstream,
         drpcArbSepoliaUpstream,
-        dwelirArbUpstream,
-        dwelirArbSepoliaUpstream,
+        dwellirArbUpstream,
+        dwellirArbSepoliaUpstream,
         blockPiArbUpstream,
         blockPiArbSepoliaUpstream,
     ],
@@ -92,6 +96,8 @@ export default {
         httpPortV4: 8080,
         maxTimeout: "60s",
         listenV6: false,
+        // Keep the X-ERPC-* counters, drop the per-attempt upstream trace
+        executionHeaders: "summary",
     },
     metrics: {
         enabled: true,
@@ -111,7 +117,7 @@ export default {
         budgets: [
             alchemyRateLimits,
             drpcRateLimits,
-            dwelirRateLimits,
+            dwellirRateLimits,
             blockPiRateLimits,
         ],
     },
