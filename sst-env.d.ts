@@ -2,47 +2,44 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+/* biome-ignore-all lint: auto-generated */
 
 declare module "sst" {
-    export interface Resource {
-        ALCHEMY_API_KEY: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        BLOCKPI_API_KEY_ARB: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        BLOCKPI_API_KEY_ARB_SEPOLIA: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        DRPC_API_KEY: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        DWELIR_API_KEY: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        ENVIO_API_KEY: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        NEXUS_RPC_SECRET: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        PIMLICO_API_KEY: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
-        PONDER_RPC_SECRET: {
-            type: "sst.sst.Secret";
-            value: string;
-        };
+  export interface Resource {
+    "ALCHEMY_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
+    "BLOCKPI_API_KEY_ARB": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "BLOCKPI_API_KEY_ARB_SEPOLIA": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "DRPC_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "DWELIR_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ENVIO_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "NEXUS_RPC_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "PIMLICO_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+  }
 }
-/// <reference path="sst-env.d.ts" />
 
-import "sst";
+import "sst"
+export {}
