@@ -84,6 +84,12 @@ const nexusProject = {
         // upstream. No seconds-based gate: erpc 0.3.0's block-time estimate
         // reads 400-930ms on Arbitrum (real: ~260ms), so `blockSecondsLagAbove`
         // trips on plain poll jitter too.
+        // Same jitter in the ranking: PREFER_FASTEST charges 1 penalty point
+        // per lagging block, so ~100 blocks of poll lag sank an upstream's
+        // score to ~0.01. Rank on PREFER_FASTEST's weights minus head lag
+        // (staleness is handled by the gate above), and keep stickyPrimary
+        // on these slot scores: at its default `network` scope it re-scores
+        // with the hard-coded PREFER_FASTEST, lag included.
         selectionPolicy: {
             evalFunc: (upstreams) =>
                 upstreams
@@ -106,8 +112,16 @@ const nexusProject = {
                         minHealthy: 1,
                         fallback: "tier:fallback",
                     })
-                    .sortByScore(PREFER_FASTEST)
+                    .sortByScore({
+                        errorRate: 4,
+                        respLatency: 15,
+                        throttledRate: 4,
+                        blockHeadLag: 0,
+                        finalizationLag: 0,
+                        misbehaviors: 2,
+                    })
                     .stickyPrimary({
+                        scope: "network-method",
                         hysteresis: 0.3,
                         minSwitchInterval: "30s",
                     })
