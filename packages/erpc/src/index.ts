@@ -73,6 +73,51 @@ const nexusProject = {
                 },
             },
         ],
+        // erpc's default selection policy, with the block-head lag gate sized
+        // for Arbitrum. The default excludes at 16 blocks / 30s, but Arbitrum
+        // makes ~4 blocks/s and heads are polled every 30s: polls land a few
+        // seconds apart, so an upstream is up to ~120 blocks "behind" between
+        // its polls. The network head is the second-highest polled head, so
+        // Alchemy (2-3s ahead of the others) got excluded on every poll
+        // cycle and stickyPrimary kept traffic off it. 240 blocks / 60s =
+        // two poll intervals, only trips on a genuinely stuck upstream.
+        selectionPolicy: {
+            evalFunc: (upstreams) =>
+                upstreams
+                    .removeCordoned()
+                    .excludeIf(all(samplesAbove(10), errorRateAbove(0.7)))
+                    .excludeIf(all(samplesAbove(10), throttleRateAbove(0.4)))
+                    .excludeIf(
+                        any(
+                            all(
+                                samplesAbove(20),
+                                latencyAbove(3000),
+                                latencyDeviationAbove(3, { mode: "majority" })
+                            ),
+                            latencyAbove(10_000)
+                        )
+                    )
+                    .excludeIf(
+                        any(blockNumberLagAbove(240), blockSecondsLagAbove(60))
+                    )
+                    .whenEmpty(() => upstreams)
+                    .preferTag("!tier:fallback", {
+                        minHealthy: 1,
+                        fallback: "tier:fallback",
+                    })
+                    .sortByScore(PREFER_FASTEST)
+                    .stickyPrimary({
+                        hysteresis: 0.3,
+                        minSwitchInterval: "30s",
+                    })
+                    .probeExcluded({
+                        sampleRate: 0.1,
+                        minSamples: 10,
+                        minSamplesWindow: "60s",
+                        maxConcurrent: 4,
+                        timeout: "10s",
+                    }),
+        },
     },
     cors: {
         allowedOrigins: ["*"],
