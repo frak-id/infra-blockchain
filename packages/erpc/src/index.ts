@@ -79,8 +79,11 @@ const nexusProject = {
         // seconds apart, so an upstream is up to ~120 blocks "behind" between
         // its polls. The network head is the second-highest polled head, so
         // Alchemy (2-3s ahead of the others) got excluded on every poll
-        // cycle and stickyPrimary kept traffic off it. 240 blocks / 60s =
-        // two poll intervals, only trips on a genuinely stuck upstream.
+        // cycle and stickyPrimary kept traffic off it. 240 blocks (~60s on
+        // Arbitrum) = two poll intervals, only trips on a genuinely stuck
+        // upstream. No seconds-based gate: erpc 0.3.0's block-time estimate
+        // reads 400-930ms on Arbitrum (real: ~260ms), so `blockSecondsLagAbove`
+        // trips on plain poll jitter too.
         selectionPolicy: {
             evalFunc: (upstreams) =>
                 upstreams
@@ -97,9 +100,7 @@ const nexusProject = {
                             latencyAbove(10_000)
                         )
                     )
-                    .excludeIf(
-                        any(blockNumberLagAbove(240), blockSecondsLagAbove(60))
-                    )
+                    .excludeIf(blockNumberLagAbove(240))
                     .whenEmpty(() => upstreams)
                     .preferTag("!tier:fallback", {
                         minHealthy: 1,
