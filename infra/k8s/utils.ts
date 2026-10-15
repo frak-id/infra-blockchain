@@ -30,3 +30,29 @@ export function getDbUrl(service: "erpc" | "ponder") {
  * The base domain name we will use for deployment
  */
 export const baseDomainName = isProd ? "gcp.frak.id" : "gcp-dev.frak.id";
+
+/**
+ * Shared Envoy Gateway `https` listener, deployed by frak-id/infra-core
+ * (`infra/kubernetes/networking/gateway.ts`). Always target `https`: the
+ * `http` listener only carries the HTTPS redirect.
+ */
+const gatewayHttpsParentRef = {
+    name: "frak-gateway",
+    namespace: "networking",
+    sectionName: "https",
+};
+
+/**
+ * `httpRoute` args for KubernetesService: the real host (inert until its DNS
+ * points at the Gateway instead of nginx) and its `*.gw` shadow host, served
+ * by the Gateway right away.
+ */
+export function gatewayRoute(subdomain: string) {
+    return {
+        hostnames: [
+            `${subdomain}.${baseDomainName}`,
+            `${subdomain}.gw.${baseDomainName}`,
+        ],
+        parentRefs: [gatewayHttpsParentRef],
+    };
+}

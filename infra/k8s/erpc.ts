@@ -2,7 +2,12 @@ import path from "node:path";
 import { KubernetesService } from "../components/KubernetesService";
 import { isProd, normalizedStageName } from "../utils";
 import { erpcSecrets } from "./secrets";
-import { baseDomainName, blockchainNamespace, getDbUrl } from "./utils";
+import {
+    baseDomainName,
+    blockchainNamespace,
+    gatewayRoute,
+    getDbUrl,
+} from "./utils";
 
 const appLabels = { app: "erpc" };
 const imageName = "erpc";
@@ -160,6 +165,11 @@ export const erpcInstance = new KubernetesService(
                 "nginx.ingress.kubernetes.io/proxy-body-size": "10m",
             },
         },
+
+        // Gateway API route, published alongside the nginx ingress. Envoy
+        // pools upstream connections natively and the gateway-wide policies
+        // already match the nginx timeouts (60s idle), so no tuning to port
+        httpRoute: gatewayRoute("erpc"),
 
         // ServiceMonitor config
         serviceMonitor: {

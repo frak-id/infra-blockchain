@@ -11,10 +11,10 @@ export default $config({
                 },
             },
             providers: {
-                kubernetes: "4.28.0",
-                "docker-build": "0.0.15",
+                kubernetes: "4.34.2",
+                "docker-build": "0.0.22",
                 gcp: {
-                    version: "9.18.0",
+                    version: "9.37.1",
                     project: "frak-main-v1",
                     region: "europe-west1",
                 },

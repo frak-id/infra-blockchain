@@ -15,11 +15,11 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "viem": "^2.41.2",
-    "sst": "3.18.10",
+    "sst": "4.17.1",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@erpc-cloud/config": "0.1.1"
+    "@erpc-cloud/config": "0.3.0"
   },
   "engines": {
     "node": ">=18.14"

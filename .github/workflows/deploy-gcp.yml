@@ -25,14 +25,14 @@ jobs:
   deploy:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
       - name: Cache SST
         id: sst-caching
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: | 
             .sst/platform/
@@ -54,7 +54,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: "👥 Configure AWS Credentials"
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::262732185023:role/github-action-deploy-role
           aws-region: eu-west-1
@@ -65,7 +65,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: "👥 Login to Google Cloud"
-        uses: 'google-github-actions/auth@v2'
+        uses: 'google-github-actions/auth@v3'
         id: 'auth'
         with:
           workload_identity_provider: 'projects/426208135260/locations/global/workloadIdentityPools/github/providers/sst-deployer'
@@ -73,7 +73,7 @@ jobs:
           project_id: 'frak-main-v1'
   
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: 'google-github-actions/setup-gcloud@v3'
         with:
           project_id: 'frak-main-v1'
           install_components: 'kubectl,gke-gcloud-auth-plugin'
@@ -84,12 +84,12 @@ jobs:
           gcloud container clusters get-credentials master-cluster --location europe-west1-b --project frak-main-v1
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: linux/amd64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           platforms: linux/amd64
 
