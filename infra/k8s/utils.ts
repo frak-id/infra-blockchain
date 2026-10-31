@@ -43,9 +43,8 @@ const gatewayHttpsParentRef = {
 };
 
 /**
- * `httpRoute` args for KubernetesService: the real host (inert until its DNS
- * points at the Gateway instead of nginx) and its `*.gw` shadow host, served
- * by the Gateway right away.
+ * `httpRoute` args for KubernetesService: the real host and its `*.gw` shadow
+ * host, both served by the Gateway.
  */
 export function gatewayRoute(subdomain: string) {
     return {
