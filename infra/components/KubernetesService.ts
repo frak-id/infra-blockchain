@@ -65,17 +65,7 @@ type KubernetesServiceArgs = {
         cpuUtilization?: Input<number>; // Default to 80
     };
 
-    // Info for the ingress
-    ingress?: {
-        host: Input<string>;
-        tlsSecretName: Input<string>;
-        additionalHosts?: string[];
-        // Custom annotations to add/override
-        customAnnotations?: Record<string, Input<string>>;
-    };
-
-    // Gateway API route, independent of `ingress` so both can be published
-    // side by side during a migration
+    // Gateway API route, attached to the shared Envoy Gateway
     httpRoute?: {
         hostnames: Input<string>[];
         parentRefs: Input<{
@@ -94,7 +84,7 @@ type KubernetesServiceArgs = {
 };
 
 /**
- * Deploy a full on kubernetes service with a deployment, service, hpa, ingress and service monitor
+ * Deploy a full on kubernetes service with a deployment, service, hpa, HTTPRoute and service monitor
  */
 export class KubernetesService extends ComponentResource {
     // Resources
@@ -102,7 +92,6 @@ export class KubernetesService extends ComponentResource {
     public readonly service: k8s.core.v1.Service | null = null;
     public readonly hpa: k8s.autoscaling.v1.HorizontalPodAutoscaler | null =
         null;
-    public readonly ingress: k8s.networking.v1.Ingress | null = null;
     public readonly httpRoute: k8s.apiextensions.CustomResource | null = null;
     public readonly serviceMonitor: k8s.apiextensions.CustomResource | null =
         null;
@@ -139,11 +128,6 @@ export class KubernetesService extends ComponentResource {
         // Create the HPA if defined
         if (this.args.hpa) {
             this.hpa = this.createHPA();
-        }
-
-        // Create the ingress if defined
-        if (this.args.ingress && this.service) {
-            this.ingress = this.createIngress();
         }
 
         // Create the Gateway API route if defined
@@ -265,73 +249,6 @@ export class KubernetesService extends ComponentResource {
                 parent: this,
                 dependsOn: this.deployment,
             }
-        );
-    }
-
-    private createIngress(): k8s.networking.v1.Ingress {
-        if (!this.args.ingress || !this.service) {
-            throw new Error(
-                "Ingress configuration and Service are required to create an Ingress"
-            );
-        }
-
-        // Mapper for the ingress rules
-        const hostToRule = (host: Input<string>) => ({
-            host,
-            http: {
-                paths: [
-                    {
-                        path: "/",
-                        pathType: "Prefix",
-                        backend: {
-                            service: {
-                                name: this.service?.metadata?.name ?? "",
-                                port: { number: 80 },
-                            },
-                        },
-                    },
-                ],
-            },
-        });
-        const rules = [
-            hostToRule(this.args.ingress.host),
-            ...(this.args.ingress.additionalHosts?.map(hostToRule) ?? []),
-        ];
-        const hosts = [
-            this.args.ingress.host,
-            ...(this.args.ingress.additionalHosts ?? []),
-        ];
-
-        return new k8s.networking.v1.Ingress(
-            `${this.name}Ingress`,
-            {
-                metadata: {
-                    name: `${this.name}-${normalizedStageName}-ingress`.toLocaleLowerCase(),
-                    namespace: this.args.namespace,
-                    annotations: {
-                        // Base annotation
-                        "nginx.ingress.kubernetes.io/rewrite-target": "/",
-                        "kubernetes.io/ingress.class": "nginx",
-                        "kubernetes.io/tls-acme": "true",
-                        "cert-manager.io/cluster-issuer": "letsencrypt",
-                        "nginx.ingress.kubernetes.io/ssl-redirect": "true",
-                        "nginx.ingress.kubernetes.io/proxy-buffer-size": "8k",
-                        // Merge custom annotations if provided (can override defaults)
-                        ...(this.args.ingress?.customAnnotations ?? {}),
-                    },
-                },
-                spec: {
-                    ingressClassName: "nginx",
-                    rules: rules,
-                    tls: [
-                        {
-                            hosts,
-                            secretName: this.args.ingress.tlsSecretName,
-                        },
-                    ],
-                },
-            },
-            { ...this.opts, parent: this, dependsOn: this.service }
         );
     }
 

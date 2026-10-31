@@ -2,12 +2,7 @@ import path from "node:path";
 import { KubernetesService } from "../components/KubernetesService";
 import { isProd, normalizedStageName } from "../utils";
 import { erpcSecrets } from "./secrets";
-import {
-    baseDomainName,
-    blockchainNamespace,
-    gatewayRoute,
-    getDbUrl,
-} from "./utils";
+import { blockchainNamespace, gatewayRoute, getDbUrl } from "./utils";
 
 const appLabels = { app: "erpc" };
 const imageName = "erpc";
@@ -141,34 +136,9 @@ export const erpcInstance = new KubernetesService(
             ],
         },
 
-        // Ingress config
-        ingress: {
-            host: `erpc.${baseDomainName}`,
-            tlsSecretName: "erpc-tls",
-            // Performance optimizations for rpc
-            customAnnotations: {
-                // Connection pooling for ingress -> backend pod connections
-                "nginx.ingress.kubernetes.io/upstream-keepalive-connections":
-                    "32",
-                "nginx.ingress.kubernetes.io/upstream-keepalive-requests":
-                    "1000",
-                "nginx.ingress.kubernetes.io/upstream-keepalive-timeout": "60",
-                // Optimized timeouts for API responses
-                "nginx.ingress.kubernetes.io/proxy-connect-timeout": "5",
-                "nginx.ingress.kubernetes.io/proxy-send-timeout": "60",
-                "nginx.ingress.kubernetes.io/proxy-read-timeout": "60",
-                // Buffer settings for API responses
-                "nginx.ingress.kubernetes.io/proxy-buffering": "on",
-                "nginx.ingress.kubernetes.io/proxy-buffers-number": "8",
-                "nginx.ingress.kubernetes.io/proxy-buffer-size": "16k",
-                "nginx.ingress.kubernetes.io/proxy-busy-buffers-size": "32k",
-                "nginx.ingress.kubernetes.io/proxy-body-size": "10m",
-            },
-        },
-
-        // Gateway API route, published alongside the nginx ingress. Envoy
-        // pools upstream connections natively and the gateway-wide policies
-        // already match the nginx timeouts (60s idle), so no tuning to port
+        // Gateway API route on the shared Envoy Gateway. Envoy pools upstream
+        // connections natively and the gateway-wide policies already set the
+        // 60s idle timeout, so no per-route tuning
         httpRoute: gatewayRoute("erpc"),
 
         // ServiceMonitor config
